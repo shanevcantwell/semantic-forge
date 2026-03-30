@@ -175,6 +175,16 @@ python -m semantic_forge --server
 
 ---
 
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Tool Reference](docs/TOOL_REFERENCE.md) | MCP tool specifications and usage |
+| [Workflow Guide](docs/WORKFLOW_GUIDE.md) | Step-by-step workflows for common tasks |
+| [Integration Guide](docs/INTEGRATION_GUIDE.md) | Integrating with external tools |
+
+---
+
 ## Development
 
 ```bash

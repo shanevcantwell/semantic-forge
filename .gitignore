@@ -28,6 +28,7 @@ env/
 # IDE
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
@@ -43,3 +44,5 @@ htmlcov/
 
 # Logs
 *.log
+
+semantic-forge-starter-pack.md
