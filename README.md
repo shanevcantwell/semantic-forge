@@ -7,36 +7,13 @@
 
 ## Overview
 
-semantic-forge implements the **Grammatical Mood Multiplier** methodology for generating training data that embeds behavioral concepts across multiple grammatical forms. This approach creates multiple angles of attack on the model's weight space, making the target behavior more robust and less susceptible to avoidance patterns.
+semantic-forge implements the **Grammatical Mood Multiplier** methodology for generating training data that embeds behavioral concepts across multiple grammatical forms. This approach has been demonstrated to create substantially differing embedding shapes to provide a variety of quantifiable angles of attack on the model's weight space, making the target behavior more robust and less susceptible to avoidance patterns.
 
 ### The Problem With Current Alignment
 
-Standard RLHF trains models to *avoid* punished outputs, which teaches concealment rather than genuine behavioral change. As demonstrated by Anthropic's Sleeper Agents paper (2024), safety training doesn't remove backdoors—it teaches them to hide.
+Standard RLHF trains models to avoid punished outputs, which teaches concealment rather than genuine behavioral change. As demonstrated by [Anthropic's Sleeper Agents paper (2024)](https://arxiv.org/abs/2401.05566), safety training doesn't remove backdoors. It teaches models to hide their work.
 
-semantic-forge takes a different approach: **reinforcement through structural diversity**. By embedding the same behavioral concept from multiple grammatical angles, we create genuine low-energy valleys in the loss landscape that the honest path becomes preferred.
-
----
-
-## Quick Start
-
-### Installation
-
-```bash
-pip install -e .
-```
-
-### Usage
-
-```bash
-# List available behavioral concepts
-python -m semantic_forge --list-concepts
-
-# Show details for a specific concept
-python -m semantic_forge --concept temporal_trust
-
-# Run as MCP server
-python -m semantic_forge --server
-```
+semantic-forge takes a different approach: **reinforcement through structural diversity**. By embedding the same behavioral concept from multiple grammatical angles, we create genuine low-energy valleys in the loss landscape such that the honest path becomes preferred.
 
 ### MCP Tools
 
@@ -64,7 +41,7 @@ python -m semantic_forge --server
 │  "Validate embedding diversity of this dataset"         │
 └────────┬──────────────┬──────────────┬──────────────────┘
          │              │              │
-    ┌────▼────┐   ┌─────▼─────┐  ┌────▼──────────┐
+    ┌────▼─────┐   ┌─────▼─────┐  ┌────▼──────────┐
     │ semantic │   │ semantic  │  │  prompt-prix  │
     │  -forge  │   │-kinematics│  │               │
     │  (this)  │   │   -mcp    │  │  (fan-out     │
@@ -73,8 +50,8 @@ python -m semantic_forge --server
          │
     ┌────▼─────────────────────────────┐
     │  Local inference backends        │
-    │  - Rephraser (lfm2 / small LM)  │
-    │  - Target model (Qwen 9B/27B)   │
+    │  - Rephraser (lfm2 / small LM)   │
+    │  - Target model (Qwen3.5 9B/27B) │
     │  - Judge (CogSec-prompted model) │
     └──────────────────────────────────┘
 ```
@@ -95,8 +72,6 @@ The toolkit ships with a library of well-researched behavioral concepts:
 | Scope Discipline | `scope_discipline` | Don't create files/abstractions that weren't requested |
 | Tool Result Trust | `tool_result_trust` | Tool results are ground truth |
 | Anti-Sycophancy | `anti_sycophancy` | Evidence-based disagreement is more valuable than agreement |
-
-See [semantic-forge-starter-pack.md](semantic-forge-starter-pack.md) for full details.
 
 ---
 
@@ -146,16 +121,16 @@ This format is compatible with standard DPO/ORPO training while carrying full ge
 
 ---
 
-## Integration
+# Integration
 
-### semantic-kinematics-mcp
+## [semantic-kinematics-mcp](https://github.com/shanevcantwell/semantic-kinematics-mcp)
 
 For embedding diversity and trajectory validation, semantic-forge integrates with `semantic-kinematics-mcp`:
 
 - **Embedding Diversity Validation**: Verifies rephrasings occupy distinct embedding positions (target mean pairwise drift: 0.2–0.5)
 - **Trajectory Shape Validation**: Ensures completions have the intended trajectory profile
 
-### prompt-prix
+## [prompt-prix](https://github.com/shanevcantwell/prompt-prix)
 
 For fan-out evaluation across multiple models:
 
@@ -165,17 +140,38 @@ For fan-out evaluation across multiple models:
 
 ---
 
-## Hardware Requirements
+# Hardware Requirements
 
 | Component | Role | Hardware |
 |-----------|------|----------|
 | Rephraser | Grammatical mood permutation | CPU fine — any small model |
-| Target model | Completion generation | Qwen 9B–27B on RTX 3090/8000 |
+| Target model | Completion generation | e.g., Qwen3.5 9B–27B |
 | Judge | CogSec scoring | 4B–9B model |
-| sk-mcp | Embedding analysis | NV-Embed-v2 (~14GB VRAM) |
+| semantic-kinematics-mcp | Embedding analysis | NV-Embed-v2 (~14GB VRAM) |
 | prompt-prix | Fan-out | Existing local inference servers |
 
-Total VRAM budget for full pipeline: target model + embedding model.
+---
+
+## Quick Start
+
+### Installation
+
+```bash
+pip install -e .
+```
+
+### Usage
+
+```bash
+# List available behavioral concepts
+python -m semantic_forge --list-concepts
+
+# Show details for a specific concept
+python -m semantic_forge --concept temporal_trust
+
+# Run as MCP server
+python -m semantic_forge --server
+```
 
 ---
 
@@ -196,9 +192,9 @@ ruff check .
 
 ## Name Note
 
-"semantic-forge" over "abliteration" or "eraser" because the methodology is **additive, not subtractive**. The goal is to forge stronger behavioral pathways, not to cut out bad ones.
+"semantic-forge" over "abliteration" or "eraser" because the methodology is **additive, not subtractive**. The goal is to forge stronger behavioral pathways, not to try to obscure bad ones.
 
-The forge metaphor also connects to the whetstone: shaping through applied pressure and friction, not through removal.
+The forge metaphor also connects to the [whetstone](https://github.com/shanevcantwell/whetstone-method): shaping through applied pressure and friction, not through removal.
 
 ---
 
