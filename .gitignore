@@ -46,3 +46,6 @@ htmlcov/
 *.log
 
 semantic-forge-starter-pack.md
+
+# Project documentation
+ROADMAP.md

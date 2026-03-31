@@ -17,12 +17,10 @@ from semantic_forge.concepts import CONCEPT_LIBRARY, get_concept_by_id
 
 async def run_server(host: str = "localhost", port: int = 8080) -> None:
     """Run the MCP server."""
-    server = Server("semantic-forge")
+    from mcp.server import StdioServerParameters
+    from mcp.server.stdio import stdio_server
 
-    # Register tools
-    for tool in get_all_tools():
-        # TODO: Register tool handlers
-        pass
+    server = Server("semantic-forge")
 
     # Register handlers
     await register_handlers(server)
@@ -30,8 +28,9 @@ async def run_server(host: str = "localhost", port: int = 8080) -> None:
     # Run the server
     print(f"Starting semantic-forge MCP server on {host}:{port}")
 
-    # TODO: Implement actual server run
-    # await server.run_stdio()
+    # Use stdio transport for local inference
+    async with stdio_server() as (read, write):
+        await server.run(read, write, StdioServerParameters(command="python", args=["-m", "semantic_forge"]))
 
 
 def list_concepts() -> None:
