@@ -3,6 +3,7 @@
 This module provides integration with semantic-kinematics-mcp and prompt-prix.
 """
 
+import contextlib
 import asyncio
 import json
 from typing import Any
@@ -51,46 +52,53 @@ class SemanticKinematicsClient:
         }
         self._initialized = False
         self._session: ClientSession | None = None
-        self._read: Any = None
-        self._write: Any = None
-        self._stderr: Any = None
+        self._exit_stack: contextlib.AsyncExitStack | None = None
 
     async def initialize(self) -> bool:
         """Initialize connection to semantic-kinematics-mcp via stdio.
+
+        Uses AsyncExitStack to manage the lifecycle of stdio transport and session.
 
         Uses self.endpoint as the command to execute. Supports:
         - Direct command: "semantic-kinematics-mcp"
         - Docker command: "docker" with args like ["run", "-i", "--rm", "semantic-kinematics-mcp"]
 
-        TODO: Call _ensure_backend() after session init to request configured backend
+        Returns:
+            True if initialization succeeds
+
+        Raises:
+            RuntimeError: If initialization fails
         """
         if self._initialized:
             return True
 
         try:
-            # Parse endpoint - support both direct command and docker format
-            command, args, env = self._parse_endpoint(self.endpoint)
+            # Create exit stack for managing async contexts
+            self._exit_stack = contextlib.AsyncExitStack()
+            await self._exit_stack.__aenter__()
 
-            # Create stdio client parameters
+            # Parse endpoint
+            command, args, env = self._parse_endpoint(self.endpoint)
             params = StdioServerParameters(
                 command=command,
                 args=args,
                 env=env,
             )
 
-            # Create stdio transport
-            transport = stdio_client(params)
-            self._read, self._write = await transport
+            # Create stdio transport and enter the context
+            stdio_context = stdio_client(params)
+            read, write = await self._exit_stack.enter_async_context(stdio_context)
 
-            # Create session
-            self._session = ClientSession(
-                read_from=self._read,
-                write_to=self._write,
-                stderr=self._stderr,
+            # Create and enter session
+            self._session = await self._exit_stack.enter_async_context(
+                ClientSession(
+                    read_stream=read,
+                    write_stream=write,
+                )
             )
 
-            # Initialize session
-            await self._session.__aenter__()
+            # Complete MCP handshake
+            await self._session.initialize()
 
             # Ensure correct backend is loaded
             await self._ensure_backend()
@@ -99,6 +107,9 @@ class SemanticKinematicsClient:
             return True
 
         except Exception as e:
+            # If initialization fails, clean up the exit stack
+            if self._exit_stack:
+                await self._exit_stack.aclose()
             raise RuntimeError(f"Failed to initialize semantic-kinematics-mcp: {e}")
 
     def _parse_endpoint(self, endpoint: str) -> tuple[str, list[str], dict | None]:
@@ -116,7 +127,12 @@ class SemanticKinematicsClient:
             # Docker format
             docker_args = endpoint[7:].split(",")
             command = "docker"
-            args = ["run", "-i", "--rm"] + docker_args
+            # If first arg is "run", use docker_args as-is; otherwise prepend defaults
+            if docker_args and docker_args[0] == "run":
+                args = docker_args
+            else:
+                # Simple docker:image-name format
+                args = ["run", "-i", "--rm"] + docker_args
             env = None
         elif "," in endpoint:
             # Command with args: "command,arg1,arg2"
@@ -365,11 +381,12 @@ class SemanticKinematicsClient:
         )
 
     async def close(self) -> None:
-        """Close the MCP session."""
-        if self._session:
-            await self._session.__aexit__(None, None, None)
-            self._initialized = False
-            self._session = None
+        """Close the MCP session and clean up resources."""
+        if self._exit_stack:
+            await self._exit_stack.aclose()
+            self._exit_stack = None
+        self._session = None
+        self._initialized = False
 
 
 class PromptPrixClient:

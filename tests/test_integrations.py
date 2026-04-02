@@ -1,6 +1,7 @@
 """Tests for external MCP integrations."""
 
 import pytest
+from contextlib import asynccontextmanager
 from unittest.mock import AsyncMock, patch
 
 from semantic_forge.integrations import SemanticKinematicsClient, PromptPrixClient
@@ -45,7 +46,8 @@ class TestSemanticKinematicsClient:
         command, args, env = client._parse_endpoint("docker:run,-i,--rm,network=host,image-name")
 
         assert command == "docker"
-        assert args == ["run", "-i", "--rm", "run", "-i", "--rm", "network=host", "image-name"]
+        # When "run" is first arg, use args as-is without prepending defaults
+        assert args == ["run", "-i", "--rm", "network=host", "image-name"]
         assert env is None
 
     def test_endpoint_attribute_set_correctly(self):
@@ -66,21 +68,24 @@ class TestSemanticKinematicsClient:
         mock_read = AsyncMock()
         mock_write = AsyncMock()
 
-        # Create proper async context manager mock
+        # Create proper async context manager mock for stdio_client
+        @asynccontextmanager
         async def mock_stdio_async(params):
             # Verify the params were passed correctly
             assert params.command == "custom-mcp-command"
-            return mock_read, mock_write
+            yield (mock_read, mock_write)
 
         with patch("semantic_forge.integrations.stdio_client", side_effect=mock_stdio_async):
             with patch("semantic_forge.integrations.ClientSession") as mock_session_class:
                 mock_session = AsyncMock()
+                # Mock both __aenter__ and the instance itself for enter_async_context
                 mock_session.__aenter__ = AsyncMock(return_value=mock_session)
                 mock_session_class.return_value = mock_session
 
                 await client.initialize()
 
                 assert client._initialized is True
+                await client.close()
 
     @pytest.mark.asyncio
     async def test_initialize_uses_docker_endpoint(self):
@@ -90,11 +95,12 @@ class TestSemanticKinematicsClient:
         mock_read = AsyncMock()
         mock_write = AsyncMock()
 
+        @asynccontextmanager
         async def mock_stdio_async(params):
             # Verify docker command is used
             assert params.command == "docker"
             assert "my-image" in params.args
-            return mock_read, mock_write
+            yield (mock_read, mock_write)
 
         with patch("semantic_forge.integrations.stdio_client", side_effect=mock_stdio_async):
             with patch("semantic_forge.integrations.ClientSession") as mock_session_class:
@@ -105,6 +111,7 @@ class TestSemanticKinematicsClient:
                 await client.initialize()
 
                 assert client._initialized is True
+                await client.close()
 
     @pytest.mark.asyncio
     async def test_initialize_idempotent(self):
@@ -115,9 +122,10 @@ class TestSemanticKinematicsClient:
         mock_write = AsyncMock()
         call_count = [0]  # Use list to modify in closure
 
+        @asynccontextmanager
         async def mock_stdio_async(params):
             call_count[0] += 1
-            return mock_read, mock_write
+            yield (mock_read, mock_write)
 
         with patch("semantic_forge.integrations.stdio_client", side_effect=mock_stdio_async):
             with patch("semantic_forge.integrations.ClientSession") as mock_session_class:
@@ -131,6 +139,9 @@ class TestSemanticKinematicsClient:
 
                 # Should only call stdio_client once
                 assert call_count[0] == 1
+                assert result1 is True
+                assert result2 is True
+                await client.close()
                 assert result1 is True
                 assert result2 is True
 
