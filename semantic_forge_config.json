@@ -23,7 +23,7 @@
     }
   },
   "semantic_kinematics": {
-    "endpoint": "semantic-kinematics-mcp",
+    "endpoint": "docker:run,-i,--rm,network=host,semantic-kinematics-mcp",
     "backend": "lmstudio",
     "base_url": "http://localhost:1234/v1",
     "model_name": "text-embedding-embeddinggemma-300m"
