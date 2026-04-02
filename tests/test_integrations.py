@@ -1,0 +1,162 @@
+"""Tests for external MCP integrations."""
+
+import pytest
+from unittest.mock import AsyncMock, patch
+
+from semantic_forge.integrations import SemanticKinematicsClient, PromptPrixClient
+
+
+class TestSemanticKinematicsClient:
+    """Test cases for SemanticKinematicsClient."""
+
+    def test_parse_endpoint_simple_command(self):
+        """Test parsing a simple command endpoint."""
+        client = SemanticKinematicsClient("semantic-kinematics-mcp")
+        command, args, env = client._parse_endpoint("semantic-kinematics-mcp")
+
+        assert command == "semantic-kinematics-mcp"
+        assert args == []
+        assert env is None
+
+    def test_parse_endpoint_with_args(self):
+        """Test parsing endpoint with comma-separated args."""
+        client = SemanticKinematicsClient("my-command,arg1,arg2")
+        command, args, env = client._parse_endpoint("my-command,arg1,arg2")
+
+        assert command == "my-command"
+        assert args == ["arg1", "arg2"]
+        assert env is None
+
+    def test_parse_endpoint_docker_format(self):
+        """Test parsing docker: prefix format."""
+        client = SemanticKinematicsClient("docker:semantic-kinematics-mcp")
+        command, args, env = client._parse_endpoint("docker:semantic-kinematics-mcp")
+
+        assert command == "docker"
+        assert "run" in args
+        assert "-i" in args
+        assert "--rm" in args
+        assert "semantic-kinematics-mcp" in args
+        assert env is None
+
+    def test_parse_endpoint_docker_with_options(self):
+        """Test parsing docker format with additional options."""
+        client = SemanticKinematicsClient("docker:run,-i,--rm,network=host,image-name")
+        command, args, env = client._parse_endpoint("docker:run,-i,--rm,network=host,image-name")
+
+        assert command == "docker"
+        assert args == ["run", "-i", "--rm", "run", "-i", "--rm", "network=host", "image-name"]
+        assert env is None
+
+    def test_endpoint_attribute_set_correctly(self):
+        """Test that endpoint attribute is set from constructor."""
+        client = SemanticKinematicsClient("custom-endpoint")
+        assert client.endpoint == "custom-endpoint"
+
+    def test_endpoint_default_value(self):
+        """Test that endpoint defaults to semantic-kinematics-mcp."""
+        client = SemanticKinematicsClient()
+        assert client.endpoint == "semantic-kinematics-mcp"
+
+    @pytest.mark.asyncio
+    async def test_initialize_uses_endpoint(self):
+        """Test that initialize() uses the endpoint parameter."""
+        client = SemanticKinematicsClient("custom-mcp-command")
+
+        mock_read = AsyncMock()
+        mock_write = AsyncMock()
+
+        # Create proper async context manager mock
+        async def mock_stdio_async(params):
+            # Verify the params were passed correctly
+            assert params.command == "custom-mcp-command"
+            return mock_read, mock_write
+
+        with patch("semantic_forge.integrations.stdio_client", side_effect=mock_stdio_async):
+            with patch("semantic_forge.integrations.ClientSession") as mock_session_class:
+                mock_session = AsyncMock()
+                mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+                mock_session_class.return_value = mock_session
+
+                await client.initialize()
+
+                assert client._initialized is True
+
+    @pytest.mark.asyncio
+    async def test_initialize_uses_docker_endpoint(self):
+        """Test that initialize() correctly handles docker: prefix."""
+        client = SemanticKinematicsClient("docker:my-image")
+
+        mock_read = AsyncMock()
+        mock_write = AsyncMock()
+
+        async def mock_stdio_async(params):
+            # Verify docker command is used
+            assert params.command == "docker"
+            assert "my-image" in params.args
+            return mock_read, mock_write
+
+        with patch("semantic_forge.integrations.stdio_client", side_effect=mock_stdio_async):
+            with patch("semantic_forge.integrations.ClientSession") as mock_session_class:
+                mock_session = AsyncMock()
+                mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+                mock_session_class.return_value = mock_session
+
+                await client.initialize()
+
+                assert client._initialized is True
+
+    @pytest.mark.asyncio
+    async def test_initialize_idempotent(self):
+        """Test that initialize() is idempotent (safe to call multiple times)."""
+        client = SemanticKinematicsClient("test-command")
+
+        mock_read = AsyncMock()
+        mock_write = AsyncMock()
+        call_count = [0]  # Use list to modify in closure
+
+        async def mock_stdio_async(params):
+            call_count[0] += 1
+            return mock_read, mock_write
+
+        with patch("semantic_forge.integrations.stdio_client", side_effect=mock_stdio_async):
+            with patch("semantic_forge.integrations.ClientSession") as mock_session_class:
+                mock_session = AsyncMock()
+                mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+                mock_session_class.return_value = mock_session
+
+                # Call initialize twice
+                result1 = await client.initialize()
+                result2 = await client.initialize()
+
+                # Should only call stdio_client once
+                assert call_count[0] == 1
+                assert result1 is True
+                assert result2 is True
+
+    @pytest.mark.asyncio
+    async def test_initialize_raises_on_failure(self):
+        """Test that initialize() raises RuntimeError on failure."""
+        client = SemanticKinematicsClient("failing-command")
+
+        with patch("semantic_forge.integrations.stdio_client") as mock_stdio:
+            mock_stdio.side_effect = ConnectionError("Connection refused")
+
+            with pytest.raises(RuntimeError) as exc_info:
+                await client.initialize()
+
+            assert "Failed to initialize semantic-kinematics-mcp" in str(exc_info.value)
+
+
+class TestPromptPrixClient:
+    """Test cases for PromptPrixClient."""
+
+    def test_endpoint_attribute_set_correctly(self):
+        """Test that endpoint attribute is set from constructor."""
+        client = PromptPrixClient("custom-prompt-prix")
+        assert client.endpoint == "custom-prompt-prix"
+
+    def test_endpoint_default_value(self):
+        """Test that endpoint defaults to prompt-prix-mcp."""
+        client = PromptPrixClient()
+        assert client.endpoint == "prompt-prix-mcp"

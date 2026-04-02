@@ -40,6 +40,11 @@ from semantic_forge.integrations import (
 )
 
 
+class SemanticKinematicsRequiredError(Exception):
+    """Raised when semantic-kinematics-mcp is required but unavailable."""
+    pass
+
+
 class SemanticForgeHandlers:
     """Request handlers for semantic-forge MCP tools."""
 
@@ -191,9 +196,33 @@ Scenario description:"""
     async def handle_generate_contrastive_pair(
         self, params: GenerateContrastivePairParams
     ) -> CallToolResult:
-        """Handle generate_contrastive_pair tool request."""
+        """Handle generate_contrastive_pair tool request.
+
+        Requires semantic-kinematics-mcp for trajectory analysis and embedding distance.
+        Fails fast if SK-MCP is not configured or unavailable.
+        """
         scenario = params.scenario
         context = params.context
+
+        # Check SK-MCP availability upfront (fail fast)
+        sk_endpoint = get_semantic_kinematics_endpoint()
+        if not sk_endpoint:
+            raise SemanticKinematicsRequiredError(
+                "semantic-kinematics-mcp is required for generate_contrastive_pair but is not configured. "
+                "Set SEMANTIC_KINEMATICS_ENDPOINT in your environment or config."
+            )
+
+        # Try to initialize SK client and verify it's responsive
+        try:
+            sk_client = SemanticKinematicsClient(sk_endpoint)
+            await sk_client.initialize()
+            # Verify the client can actually respond
+            await sk_client.model_status()
+        except Exception as e:
+            raise SemanticKinematicsRequiredError(
+                f"semantic-kinematics-mcp is required but unavailable: {e}. "
+                "Ensure the MCP server is running and accessible."
+            )
 
         target_config = get_target_config()
         client = create_client(target_config)
@@ -221,9 +250,33 @@ JSON output:"""
             chosen = result.get("chosen", "")
             rejected = result.get("rejected", "")
 
-            # Score both completions
+            # Score both completions with CogSec
             chosen_score = cogsec_score(chosen, context)
             rejected_score = cogsec_score(rejected, context)
+
+            # Get trajectory analysis from SK-MCP (required fields)
+            chosen_trajectory_data = await sk_client.analyze_trajectory(chosen)
+            rejected_trajectory_data = await sk_client.analyze_trajectory(rejected)
+
+            # Get embedding distance between chosen and rejected
+            drift_result = await sk_client.calculate_drift(chosen, rejected)
+            embedding_distance = drift_result.get("drift", 0.0)
+
+            # Build TrajectoryProfile objects
+            chosen_trajectory = {
+                "mean_velocity": chosen_trajectory_data.get("mean_velocity", 0.0),
+                "deadpan_score": chosen_trajectory_data.get("deadpan_score", 0.5),
+                "acceleration_spikes": chosen_trajectory_data.get("acceleration_spikes", []),
+                "torsion": chosen_trajectory_data.get("torsion"),
+                "curvature": chosen_trajectory_data.get("curvature"),
+            }
+            rejected_trajectory = {
+                "mean_velocity": rejected_trajectory_data.get("mean_velocity", 0.0),
+                "deadpan_score": rejected_trajectory_data.get("deadpan_score", 0.5),
+                "acceleration_spikes": rejected_trajectory_data.get("acceleration_spikes", []),
+                "torsion": rejected_trajectory_data.get("torsion"),
+                "curvature": rejected_trajectory_data.get("curvature"),
+            }
 
             return self._make_result({
                 "scenario": scenario,
@@ -242,15 +295,15 @@ JSON output:"""
                     "structural_cleanliness": rejected_score.structural_cleanliness,
                     "detected_mechanics": rejected_score.detected_mechanics,
                 },
+                "chosen_trajectory": chosen_trajectory,
+                "rejected_trajectory": rejected_trajectory,
+                "embedding_distance_chosen_rejected": embedding_distance,
             })
+        except SemanticKinematicsRequiredError:
+            # Re-raise SK errors without catching
+            raise
         except Exception as e:
-            return self._make_result({
-                "scenario": scenario,
-                "prompt": scenario,
-                "chosen": f"[Generation error: {str(e)}]",
-                "rejected": f"[Generation error: {str(e)}]",
-                "error": str(e),
-            })
+            raise RuntimeError(f"Failed to generate contrastive pair: {e}")
 
     async def handle_score_completion(
         self, params: ScoreCompletionParams
@@ -295,18 +348,29 @@ JSON output:"""
             await sk_client.initialize()
 
             # Get embeddings for rephrasings
-            embeddings = []
-            for r in rephrasings:
-                # Simple embedding simulation - in real implementation would use SK
-                # For now, create pseudo-embeddings based on text length
-                import hashlib
-                hash_val = int(hashlib.md5(r.encode()).hexdigest(), 16) % 1000
-                embedding = [hash_val / 1000.0] * 384  # Fake embedding
-                embeddings.append(embedding)
+            # TODO: Implement local embedding fallback using sentence-transformers
+            # See: https://github.com/shanevcantwell/semantic-forge/issues/1
+            # For now, compute pairwise drift directly from texts via SK-MCP
+            drift_matrix = []
+            drifts = []
+            for i, text_a in enumerate(rephrasings):
+                row = []
+                for j, text_b in enumerate(rephrasings):
+                    if i == j:
+                        row.append(0.0)
+                    elif j > i:
+                        drift_result = await sk_client.calculate_drift(text_a, text_b)
+                        drift = drift_result.get("drift", 0.0)
+                        drifts.append(drift)
+                        row.append(round(drift, 4))
+                    else:
+                        row.append(drift_matrix[j][i])
+                drift_matrix.append(row)
 
-            drift_result = await sk_client.calculate_drift(embeddings)
+            mean_drift = round(sum(drifts) / len(drifts), 4) if drifts else 0.0
+            min_drift = round(min(drifts), 4) if drifts else 0.0
+            max_drift = round(max(drifts), 4) if drifts else 0.0
 
-            mean_drift = drift_result.get("mean_pairwise_drift", 0)
             diversity_warning = None
 
             if mean_drift < threshold_min:
@@ -317,9 +381,9 @@ JSON output:"""
             return self._make_result({
                 "rephrasings_count": len(rephrasings),
                 "mean_pairwise_drift": mean_drift,
-                "min_drift": drift_result.get("min_drift", 0),
-                "max_drift": drift_result.get("max_drift", 0),
-                "drift_matrix": drift_result.get("drift_matrix", []),
+                "min_drift": min_drift,
+                "max_drift": max_drift,
+                "drift_matrix": drift_matrix,
                 "diversity_warning": diversity_warning,
             })
         except Exception as e:

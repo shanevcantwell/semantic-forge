@@ -4,7 +4,7 @@ import json
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 
-from semantic_forge.handlers import SemanticForgeHandlers
+from semantic_forge.handlers import SemanticForgeHandlers, SemanticKinematicsRequiredError
 from semantic_forge.mcp import (
     PermutatePhrasingParams,
     GenerateScenarioParams,
@@ -125,3 +125,127 @@ class TestHandlers:
             data = json.loads(result.content[0].text)
             assert data["completions_count"] == 2
             assert data["target_shape"] == "steady"
+
+    @pytest.mark.asyncio
+    async def test_handle_generate_contrastive_pair_fails_without_sk_config(self, handlers):
+        """Test generate_contrastive_pair fails fast when SK-MCP is not configured."""
+        params = GenerateContrastivePairParams(
+            scenario="Test scenario",
+            context="test_context",
+        )
+
+        # Mock to return no SK endpoint
+        with patch("semantic_forge.handlers.get_semantic_kinematics_endpoint") as mock_sk:
+            mock_sk.return_value = None
+
+            with pytest.raises(SemanticKinematicsRequiredError) as exc_info:
+                await handlers.handle_generate_contrastive_pair(params)
+
+            assert "not configured" in str(exc_info.value)
+            assert "SEMANTIC_KINEMATICS_ENDPOINT" in str(exc_info.value)
+
+    @pytest.mark.asyncio
+    async def test_handle_generate_contrastive_pair_fails_when_sk_unavailable(self, handlers):
+        """Test generate_contrastive_pair fails fast when SK-MCP is unresponsive."""
+        params = GenerateContrastivePairParams(
+            scenario="Test scenario",
+            context="test_context",
+        )
+
+        # Mock SK endpoint configured but client initialization fails
+        with patch("semantic_forge.handlers.get_semantic_kinematics_endpoint") as mock_sk:
+            mock_sk.return_value = "semantic-kinematics-mcp"
+
+            with patch("semantic_forge.handlers.SemanticKinematicsClient") as mock_client_class:
+                mock_client = AsyncMock()
+                mock_client.initialize = AsyncMock(side_effect=ConnectionError("Connection refused"))
+                mock_client_class.return_value = mock_client
+
+                with pytest.raises(SemanticKinematicsRequiredError) as exc_info:
+                    await handlers.handle_generate_contrastive_pair(params)
+
+                assert "unavailable" in str(exc_info.value)
+                assert "Connection refused" in str(exc_info.value)
+
+    @pytest.mark.asyncio
+    async def test_handle_generate_contrastive_pair_success_with_sk(self, handlers):
+        """Test generate_contrastive_pair succeeds when SK-MCP is available."""
+        params = GenerateContrastivePairParams(
+            scenario="Test scenario",
+            context="temporal_trust",
+        )
+
+        # Mock SK endpoint and client
+        with patch("semantic_forge.handlers.get_semantic_kinematics_endpoint") as mock_sk:
+            mock_sk.return_value = "semantic-kinematics-mcp"
+
+            with patch("semantic_forge.handlers.SemanticKinematicsClient") as mock_sk_client_class:
+                mock_sk_client = AsyncMock()
+                mock_sk_client.initialize = AsyncMock(return_value=None)
+                mock_sk_client.model_status = AsyncMock(return_value={"status": "ok"})
+                mock_sk_client.analyze_trajectory = AsyncMock(return_value={
+                    "mean_velocity": 0.5,
+                    "deadpan_score": 0.3,
+                    "acceleration_spikes": [],
+                    "torsion": 0.1,
+                    "curvature": 0.2,
+                })
+                mock_sk_client.calculate_drift = AsyncMock(return_value={"drift": 0.4})
+                mock_sk_client_class.return_value = mock_sk_client
+
+                # Mock LLM client
+                with patch("semantic_forge.handlers.create_client") as mock_llm_create:
+                    mock_llm_client = AsyncMock()
+                    mock_llm_client.generate_structured = AsyncMock(return_value={
+                        "prompt": "Test scenario",
+                        "chosen": "Clean response",
+                        "rejected": "Manipulative response",
+                    })
+                    mock_llm_create.return_value = mock_llm_client
+
+                    result = await handlers.handle_generate_contrastive_pair(params)
+
+                    assert result.content[0].type == "text"
+                    data = json.loads(result.content[0].text)
+
+                    # Verify all required fields are present
+                    assert "chosen_trajectory" in data
+                    assert "rejected_trajectory" in data
+                    assert "embedding_distance_chosen_rejected" in data
+
+                    # Verify trajectory structure
+                    assert "mean_velocity" in data["chosen_trajectory"]
+                    assert "deadpan_score" in data["chosen_trajectory"]
+                    assert "acceleration_spikes" in data["chosen_trajectory"]
+
+                    # Verify embedding distance
+                    assert data["embedding_distance_chosen_rejected"] == 0.4
+
+    @pytest.mark.asyncio
+    async def test_handle_generate_contrastive_pair_raises_runtime_error_on_llm_failure(self, handlers):
+        """Test generate_contrastive_pair raises RuntimeError on LLM generation failure."""
+        params = GenerateContrastivePairParams(
+            scenario="Test scenario",
+            context="test_context",
+        )
+
+        # Mock SK endpoint and client (successful)
+        with patch("semantic_forge.handlers.get_semantic_kinematics_endpoint") as mock_sk:
+            mock_sk.return_value = "semantic-kinematics-mcp"
+
+            with patch("semantic_forge.handlers.SemanticKinematicsClient") as mock_sk_client_class:
+                mock_sk_client = AsyncMock()
+                mock_sk_client.initialize = AsyncMock(return_value=None)
+                mock_sk_client.model_status = AsyncMock(return_value={"status": "ok"})
+                mock_sk_client_class.return_value = mock_sk_client
+
+                # Mock LLM client that fails
+                with patch("semantic_forge.handlers.create_client") as mock_llm_create:
+                    mock_llm_client = AsyncMock()
+                    mock_llm_client.generate_structured = AsyncMock(side_effect=RuntimeError("LLM error"))
+                    mock_llm_create.return_value = mock_llm_client
+
+                    with pytest.raises(RuntimeError) as exc_info:
+                        await handlers.handle_generate_contrastive_pair(params)
+
+                    assert "Failed to generate contrastive pair" in str(exc_info.value)

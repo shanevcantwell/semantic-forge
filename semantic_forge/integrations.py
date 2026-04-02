@@ -36,16 +36,24 @@ class SemanticKinematicsClient:
         self._stderr: Any = None
 
     async def initialize(self) -> bool:
-        """Initialize connection to semantic-kinematics-mcp via stdio."""
+        """Initialize connection to semantic-kinematics-mcp via stdio.
+
+        Uses self.endpoint as the command to execute. Supports:
+        - Direct command: "semantic-kinematics-mcp"
+        - Docker command: "docker" with args like ["run", "-i", "--rm", "semantic-kinematics-mcp"]
+        """
         if self._initialized:
             return True
 
         try:
+            # Parse endpoint - support both direct command and docker format
+            command, args, env = self._parse_endpoint(self.endpoint)
+
             # Create stdio client parameters
             params = StdioServerParameters(
-                command="semantic-kinematics-mcp",
-                args=[],
-                env=None,
+                command=command,
+                args=args,
+                env=env,
             )
 
             # Create stdio transport
@@ -67,6 +75,37 @@ class SemanticKinematicsClient:
 
         except Exception as e:
             raise RuntimeError(f"Failed to initialize semantic-kinematics-mcp: {e}")
+
+    def _parse_endpoint(self, endpoint: str) -> tuple[str, list[str], dict | None]:
+        """Parse endpoint string into command, args, and env.
+
+        Supports formats:
+        - Simple command: "semantic-kinematics-mcp"
+        - Docker with image: "docker:semantic-kinematics-mcp"
+        - Full docker: "docker:run,-i,--rm,network=host,image-name"
+
+        Returns:
+            Tuple of (command, args, env)
+        """
+        if endpoint.startswith("docker:"):
+            # Docker format
+            docker_args = endpoint[7:].split(",")
+            command = "docker"
+            args = ["run", "-i", "--rm"] + docker_args
+            env = None
+        elif "," in endpoint:
+            # Command with args: "command,arg1,arg2"
+            parts = endpoint.split(",")
+            command = parts[0]
+            args = parts[1:]
+            env = None
+        else:
+            # Simple command
+            command = endpoint
+            args = []
+            env = None
+
+        return command, args, env
 
     async def _call_tool(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         """Call an MCP tool and return parsed JSON result."""
