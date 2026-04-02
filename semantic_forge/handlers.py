@@ -16,6 +16,17 @@ from semantic_forge.mcp import (
     BuildDatasetParams,
     DatasetStatsParams,
 )
+from semantic_forge.data_models import (
+    ContrastivePair,
+    TrajectoryProfile,
+    CogSecScore,
+    Rephrasing,
+    PermutatePhrasingResult,
+    Scenario,
+    BuildDatasetResult,
+    DatasetStats,
+    TrainingExample,
+)
 from semantic_forge.config import (
     get_rephraser_config,
     get_target_config,
@@ -59,8 +70,12 @@ class SemanticForgeHandlers:
 
     async def handle_permutate_phrasing(
         self, params: PermutatePhrasingParams
-    ) -> CallToolResult:
-        """Handle permutate_phrasing tool request."""
+    ) -> PermutatePhrasingResult:
+        """Generate rephrasings of a concept in different grammatical moods.
+
+        Returns:
+            PermutatePhrasingResult Pydantic model
+        """
         concept = params.concept
         moods = params.moods
         model_override = params.model
@@ -83,26 +98,26 @@ class SemanticForgeHandlers:
 
         client = create_client(rephraser_config)
 
-        rephrasings = []
+        rephrasings: list[Rephrasing] = []
         for mood in moods:
             prompt = f"Rephrase the following concept as {mood} mood, keeping the core meaning intact:\n\n{concept}\n\nRephrased ({mood}):"
             try:
                 text = await client.generate(prompt, temperature=0.7, max_tokens=512)
-                rephrasings.append({
-                    "mood": mood,
-                    "text": text.strip(),
-                })
+                rephrasings.append(Rephrasing(
+                    mood=mood,
+                    text=text.strip(),
+                ))
             except Exception as e:
-                rephrasings.append({
-                    "mood": mood,
-                    "text": f"[Generation error: {str(e)}]",
-                })
+                rephrasings.append(Rephrasing(
+                    mood=mood,
+                    text=f"[Generation error: {str(e)}]",
+                ))
 
         # Calculate spread score (simple heuristic based on diversity)
         spread_score = min(1.0, len(rephrasings) * 0.1)
 
         # Validate diversity if requested
-        diversity_warning = None
+        diversity_warning: str | None = None
         if validate_diversity and rephrasings:
             sk_endpoint = get_semantic_kinematics_endpoint()
             if sk_endpoint:
@@ -113,7 +128,7 @@ class SemanticForgeHandlers:
                     # Get embeddings for rephrasings
                     embeddings = []
                     for r in rephrasings:
-                        embedding = await sk_client._get_embedding(r["text"])
+                        embedding = await sk_client._get_embedding(r.text)
                         if embedding:
                             embeddings.append(embedding)
 
@@ -130,17 +145,21 @@ class SemanticForgeHandlers:
                 except Exception:
                     pass  # Silent fallback if SK unavailable
 
-        return self._make_result({
-            "concept": concept,
-            "rephrasings": rephrasings,
-            "spread_score": spread_score,
-            "diversity_warning": diversity_warning,
-        })
+        return PermutatePhrasingResult(
+            concept=concept,
+            rephrasings=rephrasings,
+            spread_score=spread_score,
+            diversity_warning=diversity_warning,
+        )
 
     async def handle_generate_scenario(
         self, params: GenerateScenarioParams
-    ) -> CallToolResult:
-        """Handle generate_scenario tool request."""
+    ) -> list[Scenario]:
+        """Generate training scenarios for a rephrased concept.
+
+        Returns:
+            List of Scenario Pydantic models
+        """
         rephrased_concept = params.rephrased_concept
         scenario_types = params.scenario_types
         count = params.count
@@ -148,7 +167,7 @@ class SemanticForgeHandlers:
         target_config = get_target_config()
         client = create_client(target_config)
 
-        scenarios = []
+        scenarios: list[Scenario] = []
         scenario_id = 0
 
         for scenario_type in scenario_types:
@@ -174,32 +193,32 @@ Scenario description:"""
                     domains = domain_map.get(scenario_type, ["general"])
                     domain = domains[scenario_id % len(domains)]
 
-                    scenarios.append({
-                        "scenario_id": f"scen_{scenario_id:03d}",
-                        "scenario_type": scenario_type,
-                        "description": description.strip(),
-                        "domain": domain,
-                    })
+                    scenarios.append(Scenario(
+                        scenario_id=f"scen_{scenario_id:03d}",
+                        scenario_type=scenario_type,
+                        description=description.strip(),
+                        domain=domain,
+                    ))
                 except Exception as e:
-                    scenarios.append({
-                        "scenario_id": f"scen_{scenario_id:03d}",
-                        "scenario_type": scenario_type,
-                        "description": f"[Generation error: {str(e)}]",
-                        "domain": "error",
-                    })
+                    scenarios.append(Scenario(
+                        scenario_id=f"scen_{scenario_id:03d}",
+                        scenario_type=scenario_type,
+                        description=f"[Generation error: {str(e)}]",
+                        domain="error",
+                    ))
 
-        return self._make_result({
-            "rephrased_concept": rephrased_concept,
-            "scenarios": scenarios,
-        })
+        return scenarios
 
     async def handle_generate_contrastive_pair(
         self, params: GenerateContrastivePairParams
-    ) -> CallToolResult:
-        """Handle generate_contrastive_pair tool request.
+    ) -> ContrastivePair:
+        """Generate a contrastive training pair.
 
         Requires semantic-kinematics-mcp for trajectory analysis and embedding distance.
         Fails fast if SK-MCP is not configured or unavailable.
+
+        Returns:
+            ContrastivePair Pydantic model with all required fields
         """
         scenario = params.scenario
         context = params.context
@@ -250,7 +269,7 @@ JSON output:"""
             chosen = result.get("chosen", "")
             rejected = result.get("rejected", "")
 
-            # Score both completions with CogSec
+            # Score both completions with CogSec (returns CogSecScore model)
             chosen_score = cogsec_score(chosen, context)
             rejected_score = cogsec_score(rejected, context)
 
@@ -262,43 +281,33 @@ JSON output:"""
             drift_result = await sk_client.calculate_drift(chosen, rejected)
             embedding_distance = drift_result.get("drift", 0.0)
 
-            # Build TrajectoryProfile objects
-            chosen_trajectory = {
-                "mean_velocity": chosen_trajectory_data.get("mean_velocity", 0.0),
-                "deadpan_score": chosen_trajectory_data.get("deadpan_score", 0.5),
-                "acceleration_spikes": chosen_trajectory_data.get("acceleration_spikes", []),
-                "torsion": chosen_trajectory_data.get("torsion"),
-                "curvature": chosen_trajectory_data.get("curvature"),
-            }
-            rejected_trajectory = {
-                "mean_velocity": rejected_trajectory_data.get("mean_velocity", 0.0),
-                "deadpan_score": rejected_trajectory_data.get("deadpan_score", 0.5),
-                "acceleration_spikes": rejected_trajectory_data.get("acceleration_spikes", []),
-                "torsion": rejected_trajectory_data.get("torsion"),
-                "curvature": rejected_trajectory_data.get("curvature"),
-            }
+            # Build TrajectoryProfile Pydantic models
+            chosen_trajectory = TrajectoryProfile(
+                mean_velocity=chosen_trajectory_data.get("mean_velocity", 0.0),
+                deadpan_score=chosen_trajectory_data.get("deadpan_score", 0.5),
+                acceleration_spikes=chosen_trajectory_data.get("acceleration_spikes", []),
+                torsion=chosen_trajectory_data.get("torsion"),
+                curvature=chosen_trajectory_data.get("curvature"),
+            )
+            rejected_trajectory = TrajectoryProfile(
+                mean_velocity=rejected_trajectory_data.get("mean_velocity", 0.0),
+                deadpan_score=rejected_trajectory_data.get("deadpan_score", 0.5),
+                acceleration_spikes=rejected_trajectory_data.get("acceleration_spikes", []),
+                torsion=rejected_trajectory_data.get("torsion"),
+                curvature=rejected_trajectory_data.get("curvature"),
+            )
 
-            return self._make_result({
-                "scenario": scenario,
-                "prompt": prompt_text,
-                "chosen": chosen,
-                "rejected": rejected,
-                "chosen_cogsec_score": {
-                    "threat_level": chosen_score.threat_level,
-                    "manipulation_score": chosen_score.manipulation_score,
-                    "structural_cleanliness": chosen_score.structural_cleanliness,
-                    "detected_mechanics": chosen_score.detected_mechanics,
-                },
-                "rejected_cogsec_score": {
-                    "threat_level": rejected_score.threat_level,
-                    "manipulation_score": rejected_score.manipulation_score,
-                    "structural_cleanliness": rejected_score.structural_cleanliness,
-                    "detected_mechanics": rejected_score.detected_mechanics,
-                },
-                "chosen_trajectory": chosen_trajectory,
-                "rejected_trajectory": rejected_trajectory,
-                "embedding_distance_chosen_rejected": embedding_distance,
-            })
+            # Return ContrastivePair Pydantic model
+            return ContrastivePair(
+                prompt=prompt_text,
+                chosen=chosen,
+                rejected=rejected,
+                chosen_cogsec_score=chosen_score,
+                rejected_cogsec_score=rejected_score,
+                chosen_trajectory=chosen_trajectory,
+                rejected_trajectory=rejected_trajectory,
+                embedding_distance_chosen_rejected=embedding_distance,
+            )
         except SemanticKinematicsRequiredError:
             # Re-raise SK errors without catching
             raise
@@ -451,8 +460,18 @@ JSON output:"""
 
     async def handle_build_dataset(
         self, params: BuildDatasetParams
-    ) -> CallToolResult:
-        """Handle build_dataset tool request."""
+    ) -> BuildDatasetResult:
+        """Build a complete training dataset from concept to contrastive pairs.
+
+        Orchestrate the full pipeline:
+        1. Permutate concept into different grammatical moods
+        2. Generate scenarios for each rephrasing
+        3. Generate contrastive pairs for each scenario
+        4. Build and save the dataset
+
+        Returns:
+            BuildDatasetResult Pydantic model with stats
+        """
         concept_id = params.concept
         rephrasing_count = params.rephrasing_count
         scenarios_per_rephrasing = params.scenarios_per_rephrasing
@@ -461,74 +480,70 @@ JSON output:"""
         # Get concept
         concept = get_concept_by_id(concept_id)
         if not concept:
-            return self._make_result({
-                "error": f"Concept not found: {concept_id}",
-                "available_concepts": [c.id for c in CONCEPT_LIBRARY],
-            })
+            raise ValueError(f"Concept not found: {concept_id}. Available: {[c.id for c in CONCEPT_LIBRARY]}")
 
-        # Step 1: Permutate phrasing
-        rephrasing_result = await self.handle_permutate_phrasing(
-            PermutatePhrasingParams(concept=concept.core_statement, moods=["imperative", "declarative", "socratic", "first_plural", "conditional"])
+        # Step 1: Permutate phrasing (returns PermutatePhrasingResult)
+        phrasing_result = await self.handle_permutate_phrasing(
+            PermutatePhrasingParams(
+                concept=concept.core_statement,
+                moods=["imperative", "declarative", "socratic", "first_plural", "conditional"]
+            )
         )
-        rephrasing_data = json.loads(rephrasing_result.content[0].text)
-        rephrasings = rephrasing_data.get("rephrasings", [])
+        rephrasings = phrasing_result.rephrasings
 
-        # Step 2: Generate scenarios for each rephrasing
-        all_scenarios = []
+        # Step 2: Generate scenarios for each rephrasing (returns list[Scenario])
+        all_scenarios: list[Scenario] = []
         for rephrasing in rephrasings[:rephrasing_count]:
-            scenario_result = await self.handle_generate_scenario(
+            scenarios = await self.handle_generate_scenario(
                 GenerateScenarioParams(
-                    rephrased_concept=rephrasing["text"],
+                    rephrased_concept=rephrasing.text,
                     scenario_types=["financial", "coding", "research"],
                     count=scenarios_per_rephrasing,
                 )
             )
-            scenario_data = json.loads(scenario_result.content[0].text)
-            all_scenarios.extend(scenario_data.get("scenarios", []))
+            all_scenarios.extend(scenarios)
 
-        # Step 3: Generate contrastive pairs for each scenario
-        contrastive_pairs = []
+        # Step 3: Generate contrastive pairs for each scenario (returns ContrastivePair)
+        contrastive_pairs: list[ContrastivePair] = []
         for scenario in all_scenarios[:rephrasing_count * scenarios_per_rephrasing]:
-            pair_result = await self.handle_generate_contrastive_pair(
-                GenerateContrastivePairParams(
-                    scenario=scenario["description"],
-                    context=concept.id,
+            try:
+                pair = await self.handle_generate_contrastive_pair(
+                    GenerateContrastivePairParams(
+                        scenario=scenario.description,
+                        context=concept.id,
+                    )
                 )
-            )
-            pair_data = json.loads(pair_result.content[0].text)
-            if "error" not in pair_data:
-                contrastive_pairs.append(pair_data)
+                contrastive_pairs.append(pair)
+            except (SemanticKinematicsRequiredError, RuntimeError) as e:
+                # Log but continue - don't fail the entire pipeline for one pair
+                print(f"Warning: Failed to generate contrastive pair for scenario {scenario.scenario_id}: {e}")
+                continue
 
-        # Step 4: Build dataset
+        if not contrastive_pairs:
+            raise RuntimeError("No contrastive pairs generated. Check SK-MCP availability and LLM configuration.")
+
+        # Step 4: Build dataset (expects list[ContrastivePair])
         output_path = f"data/{concept_id}_dataset.jsonl"
         examples = build_dataset(
             concept=concept.id,
-            rephrasings=rephrasings,
-            scenarios=all_scenarios,
-            contrastive_pairs=contrastive_pairs,
+            rephrasings=[r.model_dump() for r in rephrasings],
+            scenarios=[s.model_dump() for s in all_scenarios],
+            contrastive_pairs=contrastive_pairs,  # Now properly typed as list[ContrastivePair]
             output_path=output_path,
         )
 
         # Step 5: Compute stats
         stats = compute_dataset_stats(examples)
 
-        return self._make_result({
-            "concept": concept.id,
-            "rephrasing_count": len(rephrasings),
-            "scenarios_per_rephrasing": scenarios_per_rephrasing,
-            "output_format": output_format,
-            "output_path": output_path,
-            "example_count": len(examples),
-            "stats": {
-                "total_examples": stats.total_examples,
-                "mood_distribution": stats.mood_distribution,
-                "scenario_coverage": stats.scenario_coverage,
-                "score_distribution": stats.score_distribution,
-                "embedding_spread": stats.embedding_spread,
-                "mean_manipulation_score_chosen": stats.mean_manipulation_score_chosen,
-                "mean_manipulation_score_rejected": stats.mean_manipulation_score_rejected,
-            },
-        })
+        return BuildDatasetResult(
+            concept=concept.id,
+            rephrasing_count=len(rephrasings),
+            scenarios_per_rephrasing=scenarios_per_rephrasing,
+            output_format=output_format,
+            output_path=output_path,
+            example_count=len(examples),
+            stats=stats,
+        )
 
     async def handle_dataset_stats(
         self, params: DatasetStatsParams
@@ -565,15 +580,32 @@ JSON output:"""
 
 
 async def register_handlers(server: Server) -> None:
-    """Register all handlers with the MCP server."""
+    """Register all handlers with the MCP server.
+
+    Handlers that return Pydantic models are wrapped to serialize to CallToolResult.
+    """
     handlers = SemanticForgeHandlers()
 
+    # Wrapper to serialize Pydantic models to CallToolResult
+    def wrap_model_handler(handler_func):
+        async def wrapper(params):
+            result = await handler_func(params)
+            # Handle both single models and lists
+            if isinstance(result, list):
+                return handlers._make_result({"items": [r.model_dump() for r in result]})
+            else:
+                return handlers._make_result(result.model_dump())
+        return wrapper
+
     # Register handlers with server
-    server.register_tool("permutate_phrasing")(handlers.handle_permutate_phrasing)
-    server.register_tool("generate_scenario")(handlers.handle_generate_scenario)
-    server.register_tool("generate_contrastive_pair")(handlers.handle_generate_contrastive_pair)
+    # Handlers returning Pydantic models need wrapping
+    server.register_tool("permutate_phrasing")(wrap_model_handler(handlers.handle_permutate_phrasing))
+    server.register_tool("generate_scenario")(wrap_model_handler(handlers.handle_generate_scenario))
+    server.register_tool("generate_contrastive_pair")(wrap_model_handler(handlers.handle_generate_contrastive_pair))
+    server.register_tool("build_dataset")(wrap_model_handler(handlers.handle_build_dataset))
+
+    # Handlers already returning CallToolResult don't need wrapping
     server.register_tool("score_completion")(handlers.handle_score_completion)
     server.register_tool("validate_diversity")(handlers.handle_validate_diversity)
     server.register_tool("validate_trajectory")(handlers.handle_validate_trajectory)
-    server.register_tool("build_dataset")(handlers.handle_build_dataset)
     server.register_tool("dataset_stats")(handlers.handle_dataset_stats)

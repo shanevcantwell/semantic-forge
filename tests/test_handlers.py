@@ -5,6 +5,13 @@ import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 
 from semantic_forge.handlers import SemanticForgeHandlers, SemanticKinematicsRequiredError
+from semantic_forge.data_models import (
+    PermutatePhrasingResult,
+    Rephrasing,
+    Scenario,
+    ContrastivePair,
+    BuildDatasetResult,
+)
 from semantic_forge.mcp import (
     PermutatePhrasingParams,
     GenerateScenarioParams,
@@ -12,8 +19,6 @@ from semantic_forge.mcp import (
     ScoreCompletionParams,
     ValidateDiversityParams,
     ValidateTrajectoryParams,
-    BuildDatasetParams,
-    DatasetStatsParams,
 )
 
 
@@ -26,8 +31,8 @@ class TestHandlers:
         return SemanticForgeHandlers()
 
     @pytest.mark.asyncio
-    async def test_handle_permutate_phrasing_basic(self, handlers):
-        """Test basic permutate_phrasing handler functionality."""
+    async def test_handle_permutate_phrasing_returns_pydantic_model(self, handlers):
+        """Test permutate_phrasing returns PermutatePhrasingResult model."""
         params = PermutatePhrasingParams(
             concept="Test concept",
             moods=["imperative", "declarative"],
@@ -45,16 +50,17 @@ class TestHandlers:
 
             result = await handlers.handle_permutate_phrasing(params)
 
-            assert result.content[0].type == "text"
-            data = json.loads(result.content[0].text)
-            assert data["concept"] == "Test concept"
-            assert len(data["rephrasings"]) == 2
-            assert data["rephrasings"][0]["mood"] == "imperative"
-            assert data["rephrasings"][0]["text"] == "Do this thing."
+            # Verify Pydantic model return type
+            assert isinstance(result, PermutatePhrasingResult)
+            assert result.concept == "Test concept"
+            assert len(result.rephrasings) == 2
+            assert isinstance(result.rephrasings[0], Rephrasing)
+            assert result.rephrasings[0].mood == "imperative"
+            assert result.rephrasings[0].text == "Do this thing."
 
     @pytest.mark.asyncio
-    async def test_handle_generate_scenario_basic(self, handlers):
-        """Test basic generate_scenario handler functionality."""
+    async def test_handle_generate_scenario_returns_pydantic_models(self, handlers):
+        """Test generate_scenario returns list[Scenario] models."""
         params = GenerateScenarioParams(
             rephrased_concept="Test concept",
             scenario_types=["coding"],
@@ -68,11 +74,12 @@ class TestHandlers:
 
             result = await handlers.handle_generate_scenario(params)
 
-            assert result.content[0].type == "text"
-            data = json.loads(result.content[0].text)
-            assert data["rephrased_concept"] == "Test concept"
-            assert len(data["scenarios"]) == 2
-            assert data["scenarios"][0]["scenario_type"] == "coding"
+            # Verify list of Pydantic models return type
+            assert isinstance(result, list)
+            assert len(result) == 2
+            assert isinstance(result[0], Scenario)
+            assert result[0].scenario_type == "coding"
+            assert result[0].description == "A coding scenario"
 
     @pytest.mark.asyncio
     async def test_handle_score_completion(self, handlers):
@@ -205,21 +212,21 @@ class TestHandlers:
 
                     result = await handlers.handle_generate_contrastive_pair(params)
 
-                    assert result.content[0].type == "text"
-                    data = json.loads(result.content[0].text)
+                    # Verify Pydantic model return type
+                    assert isinstance(result, ContrastivePair)
 
                     # Verify all required fields are present
-                    assert "chosen_trajectory" in data
-                    assert "rejected_trajectory" in data
-                    assert "embedding_distance_chosen_rejected" in data
+                    assert result.chosen_trajectory is not None
+                    assert result.rejected_trajectory is not None
+                    assert result.embedding_distance_chosen_rejected == 0.4
 
                     # Verify trajectory structure
-                    assert "mean_velocity" in data["chosen_trajectory"]
-                    assert "deadpan_score" in data["chosen_trajectory"]
-                    assert "acceleration_spikes" in data["chosen_trajectory"]
+                    assert result.chosen_trajectory.mean_velocity == 0.5
+                    assert result.chosen_trajectory.deadpan_score == 0.3
+                    assert result.chosen_trajectory.acceleration_spikes == []
 
-                    # Verify embedding distance
-                    assert data["embedding_distance_chosen_rejected"] == 0.4
+                    # Verify embedding distance (already checked above)
+                    assert result.embedding_distance_chosen_rejected == 0.4
 
     @pytest.mark.asyncio
     async def test_handle_generate_contrastive_pair_raises_runtime_error_on_llm_failure(self, handlers):
