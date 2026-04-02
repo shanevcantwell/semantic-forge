@@ -186,16 +186,49 @@ pip install -e .
 
 ### Configuration
 
-Configure embedding backend via environment variables:
+Create `semantic_forge_config.json` in your working directory:
+
+```json
+{
+  "inference": {
+    "rephraser": {
+      "type": "vllm",
+      "model": "qwen3.5-9b",
+      "endpoint": "http://192.168.137.1:1234",
+      "temperature": 0.7,
+      "max_tokens": 2048
+    },
+    "target": {
+      "type": "vllm",
+      "model": "qwen3.5-9b",
+      "endpoint": "http://192.168.137.1:1234",
+      "temperature": 0.7,
+      "max_tokens": 2048
+    },
+    "judge": {
+      "type": "vllm",
+      "model": "qwen3.5-9b",
+      "endpoint": "http://192.168.137.1:1234",
+      "temperature": 0.1,
+      "max_tokens": 512
+    }
+  },
+  "semantic_kinematics": {
+    "endpoint": "semantic-kinematics-mcp",
+    "backend": "lmstudio",
+    "base_url": "http://192.168.137.1:1234/v1",
+    "model_name": "text-embedding-embeddinggemma-300m"
+  }
+}
+```
+
+Or use environment variables:
 
 ```bash
-# LM Studio backend (default, low VRAM)
+# Embedding backend
 export SEMANTIC_KINEMATICS_BACKEND=lmstudio
-export SEMANTIC_KINEMATICS_BASE_URL=http://localhost:1234/v1
+export SEMANTIC_KINEMATICS_BASE_URL=http://192.168.137.1:1234/v1
 export SEMANTIC_KINEMATICS_MODEL_NAME=text-embedding-embeddinggemma-300m
-
-# Or NV-Embed-v2 backend (high quality, ~14GB VRAM)
-export SEMANTIC_KINEMATICS_BACKEND=nv_embed
 ```
 
 ### Usage

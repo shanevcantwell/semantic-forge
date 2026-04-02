@@ -135,6 +135,9 @@ def _load_from_file(path: str, base_config: SemanticForgeConfig) -> SemanticForg
         sk_data = data["semantic_kinematics"]
         config.semantic_kinematics = SemanticKinematicsConfig(
             endpoint=sk_data.get("endpoint"),
+            backend=sk_data.get("backend"),
+            base_url=sk_data.get("base_url"),
+            model_name=sk_data.get("model_name"),
             model=sk_data.get("model", "nvidia/NV-Embed-v2"),
             device=sk_data.get("device", "cuda"),
         )
