@@ -15,7 +15,7 @@ from semantic_forge.handlers import register_handlers
 from semantic_forge.concepts import CONCEPT_LIBRARY, get_concept_by_id
 
 
-async def run_server(host: str = "localhost", port: int = 8080) -> None:
+async def run_server() -> None:
     """Run the MCP server."""
     from mcp.server import StdioServerParameters
     from mcp.server.stdio import stdio_server
@@ -26,7 +26,7 @@ async def run_server(host: str = "localhost", port: int = 8080) -> None:
     await register_handlers(server)
 
     # Run the server
-    print(f"Starting semantic-forge MCP server on {host}:{port}")
+    print("Starting semantic-forge MCP server (stdio transport)")
 
     # Use stdio transport for local inference
     async with stdio_server() as (read, write):
@@ -66,23 +66,12 @@ def main() -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(
         prog="semantic-forge",
-        description="Behavioral Fine-Tuning Data Generation Toolkit",
+        description="Behavioral Fine-Tuning Data Generation Toolkit (stdio transport)",
     )
     parser.add_argument(
         "--server",
         action="store_true",
-        help="Run as MCP server",
-    )
-    parser.add_argument(
-        "--host",
-        default="localhost",
-        help="Host to bind to (default: localhost)",
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=8080,
-        help="Port to bind to (default: 8080)",
+        help="Run as MCP server (stdio transport)",
     )
     parser.add_argument(
         "--list-concepts",
@@ -106,7 +95,7 @@ def main() -> int:
         return 0
 
     if args.server:
-        asyncio.run(run_server(args.host, args.port))
+        asyncio.run(run_server())
         return 0
 
     # Default: show help

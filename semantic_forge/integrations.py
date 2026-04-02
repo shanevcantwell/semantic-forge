@@ -25,8 +25,12 @@ class SemanticKinematicsClient:
         Initialize the semantic-kinematics client.
 
         Args:
-            endpoint: Optional MCP server endpoint (command). Defaults to
-                      'semantic-kinematics-mcp' if not provided.
+            endpoint: Optional MCP server endpoint (command). Supports formats:
+                      - Simple: "semantic-kinematics-mcp"
+                      - Docker: "docker:semantic-kinematics-mcp"
+                      - With args: "command,arg1,arg2"
+                      - Full docker: "docker:run,-i,--rm,network=host,image-name"
+                      Defaults to 'semantic-kinematics-mcp' if not provided.
         """
         self.endpoint = endpoint or "semantic-kinematics-mcp"
         self._initialized = False
@@ -35,17 +39,44 @@ class SemanticKinematicsClient:
         self._write: Any = None
         self._stderr: Any = None
 
+    def _parse_endpoint(self) -> tuple[str, list[str], dict | None]:
+        """Parse endpoint string to extract command, args, and env.
+
+        Returns:
+            Tuple of (command, args, env)
+        """
+        endpoint = self.endpoint
+
+        if endpoint.startswith("docker:"):
+            # Docker format: docker:command,arg1,arg2 or docker:run,-i,--rm,network=host,image
+            args_str = endpoint[7:]  # Remove "docker:"
+            if "," in args_str:
+                parts = args_str.split(",")
+                return "docker", ["run", "-i", "--rm"] + parts, None
+            else:
+                return "docker", ["run", "-i", "--rm", args_str], None
+        elif "," in endpoint:
+            # Comma-separated: command,arg1,arg2
+            parts = endpoint.split(",")
+            return parts[0], parts[1:], None
+        else:
+            # Simple command
+            return endpoint, [], None
+
     async def initialize(self) -> bool:
         """Initialize connection to semantic-kinematics-mcp via stdio."""
         if self._initialized:
             return True
 
         try:
+            # Parse endpoint to get command and args
+            command, args, env = self._parse_endpoint()
+
             # Create stdio client parameters
             params = StdioServerParameters(
-                command="semantic-kinematics-mcp",
-                args=[],
-                env=None,
+                command=command,
+                args=args,
+                env=env,
             )
 
             # Create stdio transport
