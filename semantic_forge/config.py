@@ -22,8 +22,17 @@ class InferenceBackend:
 
 @dataclass
 class SemanticKinematicsConfig:
-    """Configuration for semantic-kinematics-mcp integration."""
+    """Configuration for semantic-kinematics-mcp integration.
+
+    Supports runtime backend switching via MCP model_load tool.
+    Default backend: lmstudio with embeddinggemma:300m for low VRAM usage.
+    """
     endpoint: Optional[str] = None
+    # Backend switching via MCP interface
+    backend: Optional[str] = "lmstudio"  # "lmstudio", "nv_embed", "sentence_transformers"
+    base_url: Optional[str] = "http://localhost:1234/v1"  # LM Studio API URL
+    model_name: Optional[str] = "text-embedding-embeddinggemma-300m"  # Model for API backends
+    # Legacy fields for NV-Embed backend (kept for backwards compatibility)
     model: str = "nvidia/NV-Embed-v2"
     device: str = "cuda"
 
@@ -158,9 +167,16 @@ def _load_from_env(base_config: SemanticForgeConfig) -> SemanticForgeConfig:
             if isinstance(config.inference[key], InferenceBackend):
                 config.inference[key].endpoint = os.environ["OLLAMA_ENDPOINT"]
 
-    # Semantic kinematics
+    # Semantic kinematics backend config
     if os.environ.get("SEMANTIC_KINEMATICS_ENDPOINT"):
         config.semantic_kinematics.endpoint = os.environ["SEMANTIC_KINEMATICS_ENDPOINT"]
+    if os.environ.get("SEMANTIC_KINEMATICS_BACKEND"):
+        config.semantic_kinematics.backend = os.environ["SEMANTIC_KINEMATICS_BACKEND"]
+    if os.environ.get("SEMANTIC_KINEMATICS_BASE_URL"):
+        config.semantic_kinematics.base_url = os.environ["SEMANTIC_KINEMATICS_BASE_URL"]
+    if os.environ.get("SEMANTIC_KINEMATICS_MODEL_NAME"):
+        config.semantic_kinematics.model_name = os.environ["SEMANTIC_KINEMATICS_MODEL_NAME"]
+    # Legacy env vars (kept for backwards compatibility)
     if os.environ.get("SEMANTIC_KINEMATICS_MODEL"):
         config.semantic_kinematics.model = os.environ["SEMANTIC_KINEMATICS_MODEL"]
     if os.environ.get("SEMANTIC_KINEMATICS_DEVICE"):
@@ -191,6 +207,14 @@ def get_judge_config() -> InferenceBackend:
 def get_semantic_kinematics_endpoint() -> Optional[str]:
     """Get the semantic-kinematics-mcp endpoint."""
     return get_config().semantic_kinematics.endpoint
+
+
+def get_semantic_kinematics_config() -> SemanticKinematicsConfig:
+    """Get the full semantic-kinematics configuration.
+
+    TODO: Use this to pass backend config to SemanticKinematicsClient
+    """
+    return get_config().semantic_kinematics
 
 
 def get_prompt_prix_endpoint() -> Optional[str]:

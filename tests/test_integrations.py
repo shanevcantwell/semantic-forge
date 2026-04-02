@@ -147,6 +147,128 @@ class TestSemanticKinematicsClient:
 
             assert "Failed to initialize semantic-kinematics-mcp" in str(exc_info.value)
 
+    def test_client_accepts_backend_config(self):
+        """Test that constructor accepts backend config parameters."""
+        client = SemanticKinematicsClient(
+            endpoint="test-endpoint",
+            backend="lmstudio",
+            base_url="http://localhost:1234/v1",
+            model_name="text-embedding-embeddinggemma-300m",
+        )
+
+        assert client.backend_config["backend"] == "lmstudio"
+        assert client.backend_config["base_url"] == "http://localhost:1234/v1"
+        assert client.backend_config["model_name"] == "text-embedding-embeddinggemma-300m"
+
+    def test_backend_config_defaults_to_none(self):
+        """Test that backend config defaults to None when not specified."""
+        client = SemanticKinematicsClient("test-endpoint")
+
+        assert client.backend_config["backend"] is None
+        assert client.backend_config["base_url"] is None
+        assert client.backend_config["model_name"] is None
+
+    @pytest.mark.asyncio
+    async def test_ensure_backend_no_config(self):
+        """Test _ensure_backend() is a no-op when no backend configured."""
+        client = SemanticKinematicsClient("test-endpoint")
+
+        # Should not raise or do anything when no backend config
+        await client._ensure_backend()
+
+    @pytest.mark.asyncio
+    async def test_ensure_backend_calls_model_load(self):
+        """Test _ensure_backend() calls model_load with backend config."""
+        client = SemanticKinematicsClient(
+            endpoint="test-endpoint",
+            backend="lmstudio",
+            base_url="http://localhost:1234/v1",
+            model_name="embeddinggemma",
+        )
+
+        mock_session = AsyncMock()
+        client._session = mock_session
+
+        # Mock _call_tool to capture the call
+        captured_args = {}
+
+        async def mock_call_tool(name, arguments):
+            captured_args[name] = arguments
+            return {"status": "loaded", "backend": "lmstudio"}
+
+        client._call_tool = mock_call_tool
+
+        await client._ensure_backend()
+
+        # Verify model_load was called with correct args
+        assert "model_load" in captured_args
+        assert captured_args["model_load"]["backend"] == "lmstudio"
+        assert captured_args["model_load"]["base_url"] == "http://localhost:1234/v1"
+        assert captured_args["model_load"]["model_name"] == "embeddinggemma"
+
+    @pytest.mark.asyncio
+    async def test_model_status_method(self):
+        """Test model_status() calls the correct tool."""
+        client = SemanticKinematicsClient("test-endpoint")
+
+        mock_session = AsyncMock()
+        client._session = mock_session
+
+        async def mock_call_tool(name, arguments):
+            return {"backend": "lmstudio", "model_name": "test", "is_loaded": True}
+
+        client._call_tool = mock_call_tool
+
+        result = await client.model_status()
+
+        assert result["backend"] == "lmstudio"
+
+    @pytest.mark.asyncio
+    async def test_model_load_method(self):
+        """Test model_load() passes arguments correctly."""
+        client = SemanticKinematicsClient("test-endpoint")
+
+        mock_session = AsyncMock()
+        client._session = mock_session
+
+        captured_args = {}
+
+        async def mock_call_tool(name, arguments):
+            captured_args[name] = arguments
+            return {"status": "loaded"}
+
+        client._call_tool = mock_call_tool
+
+        await client.model_load(
+            backend="sentence_transformers",
+            model_name="all-MiniLM-L6-v2",
+        )
+
+        assert "model_load" in captured_args
+        assert captured_args["model_load"]["backend"] == "sentence_transformers"
+        assert captured_args["model_load"]["model_name"] == "all-MiniLM-L6-v2"
+
+    @pytest.mark.asyncio
+    async def test_model_unload_method(self):
+        """Test model_unload() passes clear_cache argument."""
+        client = SemanticKinematicsClient("test-endpoint")
+
+        mock_session = AsyncMock()
+        client._session = mock_session
+
+        captured_args = {}
+
+        async def mock_call_tool(name, arguments):
+            captured_args[name] = arguments
+            return {"status": "unloaded"}
+
+        client._call_tool = mock_call_tool
+
+        await client.model_unload(clear_cache=True)
+
+        assert "model_unload" in captured_args
+        assert captured_args["model_unload"]["clear_cache"] is True
+
 
 class TestPromptPrixClient:
     """Test cases for PromptPrixClient."""

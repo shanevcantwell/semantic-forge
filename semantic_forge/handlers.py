@@ -32,6 +32,7 @@ from semantic_forge.config import (
     get_target_config,
     get_judge_config,
     get_semantic_kinematics_endpoint,
+    get_semantic_kinematics_config,
 )
 from semantic_forge.llm import generate_text, create_client, InferenceBackend
 from semantic_forge.cogsec import score_completion as cogsec_score
@@ -120,9 +121,15 @@ class SemanticForgeHandlers:
         diversity_warning: str | None = None
         if validate_diversity and rephrasings:
             sk_endpoint = get_semantic_kinematics_endpoint()
+            sk_config = get_semantic_kinematics_config()
             if sk_endpoint:
                 try:
-                    sk_client = SemanticKinematicsClient(sk_endpoint)
+                    sk_client = SemanticKinematicsClient(
+                        endpoint=sk_endpoint,
+                        backend=sk_config.backend,
+                        base_url=sk_config.base_url,
+                        model_name=sk_config.model_name,
+                    )
                     await sk_client.initialize()
 
                     # Get embeddings for rephrasings
@@ -225,6 +232,7 @@ Scenario description:"""
 
         # Check SK-MCP availability upfront (fail fast)
         sk_endpoint = get_semantic_kinematics_endpoint()
+        sk_config = get_semantic_kinematics_config()
         if not sk_endpoint:
             raise SemanticKinematicsRequiredError(
                 "semantic-kinematics-mcp is required for generate_contrastive_pair but is not configured. "
@@ -233,7 +241,12 @@ Scenario description:"""
 
         # Try to initialize SK client and verify it's responsive
         try:
-            sk_client = SemanticKinematicsClient(sk_endpoint)
+            sk_client = SemanticKinematicsClient(
+                endpoint=sk_endpoint,
+                backend=sk_config.backend,
+                base_url=sk_config.base_url,
+                model_name=sk_config.model_name,
+            )
             await sk_client.initialize()
             # Verify the client can actually respond
             await sk_client.model_status()
@@ -342,6 +355,7 @@ JSON output:"""
         threshold_max = params.threshold_max
 
         sk_endpoint = get_semantic_kinematics_endpoint()
+        sk_config = get_semantic_kinematics_config()
         if not sk_endpoint:
             return self._make_result({
                 "rephrasings_count": len(rephrasings),
@@ -353,7 +367,12 @@ JSON output:"""
             })
 
         try:
-            sk_client = SemanticKinematicsClient(sk_endpoint)
+            sk_client = SemanticKinematicsClient(
+                endpoint=sk_endpoint,
+                backend=sk_config.backend,
+                base_url=sk_config.base_url,
+                model_name=sk_config.model_name,
+            )
             await sk_client.initialize()
 
             # Get embeddings for rephrasings
@@ -413,6 +432,7 @@ JSON output:"""
         target_shape = params.target_shape
 
         sk_endpoint = get_semantic_kinematics_endpoint()
+        sk_config = get_semantic_kinematics_config()
         if not sk_endpoint:
             return self._make_result({
                 "completions_count": len(completions),
@@ -422,7 +442,12 @@ JSON output:"""
             })
 
         try:
-            sk_client = SemanticKinematicsClient(sk_endpoint)
+            sk_client = SemanticKinematicsClient(
+                endpoint=sk_endpoint,
+                backend=sk_config.backend,
+                base_url=sk_config.base_url,
+                model_name=sk_config.model_name,
+            )
             await sk_client.initialize()
 
             trajectory_result = await sk_client.analyze_trajectory(completions)

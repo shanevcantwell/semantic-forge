@@ -18,17 +18,37 @@ class SemanticKinematicsClient:
     - Semantic drift calculation (calculate_drift)
     - Trajectory analysis (analyze_trajectory)
     - Trajectory comparison (compare_trajectories)
+    - Backend management (model_status, model_load, model_unload)
+
+    TODO: Add backend configuration to __init__ for runtime backend switching
     """
 
-    def __init__(self, endpoint: str | None = None):
+    def __init__(
+        self,
+        endpoint: str | None = None,
+        backend: str | None = None,  # TODO: Use this to request specific backend at runtime
+        base_url: str | None = None,  # TODO: LM Studio API URL (e.g., http://localhost:1234/v1)
+        model_name: str | None = None,  # TODO: Model name for API backends
+    ):
         """
         Initialize the semantic-kinematics client.
 
         Args:
             endpoint: Optional MCP server endpoint (command). Defaults to
                       'semantic-kinematics-mcp' if not provided.
+            backend: Optional backend to use (nv_embed, lmstudio, sentence_transformers).
+                     TODO: Implement backend switching via model_load tool
+            base_url: API URL for lmstudio backend.
+                      TODO: Pass to model_load when backend=lmstudio
+            model_name: Model name for API backends.
+                        TODO: Pass to model_load when using lmstudio or sentence_transformers
         """
         self.endpoint = endpoint or "semantic-kinematics-mcp"
+        self.backend_config = {
+            "backend": backend,
+            "base_url": base_url,
+            "model_name": model_name,
+        }
         self._initialized = False
         self._session: ClientSession | None = None
         self._read: Any = None
@@ -41,6 +61,8 @@ class SemanticKinematicsClient:
         Uses self.endpoint as the command to execute. Supports:
         - Direct command: "semantic-kinematics-mcp"
         - Docker command: "docker" with args like ["run", "-i", "--rm", "semantic-kinematics-mcp"]
+
+        TODO: Call _ensure_backend() after session init to request configured backend
         """
         if self._initialized:
             return True
@@ -69,6 +91,9 @@ class SemanticKinematicsClient:
 
             # Initialize session
             await self._session.__aenter__()
+
+            # Ensure correct backend is loaded
+            await self._ensure_backend()
 
             self._initialized = True
             return True
@@ -106,6 +131,79 @@ class SemanticKinematicsClient:
             env = None
 
         return command, args, env
+
+    async def _ensure_backend(self) -> None:
+        """Ensure the configured backend is loaded.
+
+        MVP implementation: Calls model_load with backend_config if backend is specified.
+
+        TODO: Add error handling for failed model_load
+        TODO: Check current status before switching to avoid unnecessary reloads
+        TODO: Graceful fallback if backend unavailable
+        """
+        if not self.backend_config.get("backend"):
+            # No backend configured - rely on SK-MCP .env configuration
+            return
+
+        # Build load args from config
+        load_args = {
+            k: v for k, v in self.backend_config.items() if v is not None
+        }
+
+        # TODO: Add error handling - what if model_load fails?
+        # For MVP, let errors propagate
+        await self._call_tool("model_load", load_args)
+
+    async def model_status(self) -> dict[str, Any]:
+        """Check current embedding backend status.
+
+        Returns:
+            Dictionary with backend, model_name, is_loaded, dimensions, cache_size
+
+        TODO: Add this to the public API docs
+        """
+        return await self._call_tool("model_status", {})
+
+    async def model_load(
+        self,
+        backend: str | None = None,
+        base_url: str | None = None,
+        model_name: str | None = None,
+    ) -> dict[str, Any]:
+        """Load or switch to a specific embedding backend.
+
+        Args:
+            backend: Backend type (nv_embed, lmstudio, sentence_transformers)
+            base_url: API URL for lmstudio backend
+            model_name: Model name for API backends
+
+        Returns:
+            Dictionary with status, backend, model_name, is_loaded
+
+        TODO: Add this to the public API docs
+        """
+        load_args = {}
+        if backend:
+            load_args["backend"] = backend
+        if base_url:
+            load_args["base_url"] = base_url
+        if model_name:
+            load_args["model_name"] = model_name
+
+        return await self._call_tool("model_load", load_args)
+
+    async def model_unload(self, clear_cache: bool = True) -> dict[str, Any]:
+        """Unload the current embedding backend.
+
+        Args:
+            clear_cache: Also clear the embedding cache
+
+        Returns:
+            Dictionary with status and cache_entries_cleared
+
+        TODO: Add this to the public API docs
+        """
+        return await self._call_tool("model_unload", {"clear_cache": clear_cache})
 
     async def _call_tool(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         """Call an MCP tool and return parsed JSON result."""

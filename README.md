@@ -130,6 +130,30 @@ For embedding diversity and trajectory validation, semantic-forge integrates wit
 - **Embedding Diversity Validation**: Verifies rephrasings occupy distinct embedding positions (target mean pairwise drift: 0.2–0.5)
 - **Trajectory Shape Validation**: Ensures completions have the intended trajectory profile
 
+### Backend Configuration
+
+semantic-forge supports runtime backend switching via the SK-MCP `model_load` tool. Configure the embedding backend via environment variables:
+
+```bash
+# LM Studio backend (default, low VRAM usage)
+export SEMANTIC_KINEMATICS_BACKEND=lmstudio
+export SEMANTIC_KINEMATICS_BASE_URL=http://localhost:1234/v1
+export SEMANTIC_KINEMATICS_MODEL_NAME=text-embedding-embeddinggemma-300m
+
+# Or NV-Embed-v2 backend (high quality, ~14GB VRAM)
+export SEMANTIC_KINEMATICS_BACKEND=nv_embed
+```
+
+**Default configuration** (LM Studio with embeddinggemma:300m):
+- Low VRAM requirements (~300M parameter model)
+- Requires LM Studio running on `http://localhost:1234`
+- Supports any GGUF embedding model loaded in LM Studio
+
+**NV-Embed-v2 backend**:
+- Highest embedding quality (4096 dimensions)
+- Requires ~14GB VRAM (fp16)
+- No external dependencies
+
 ## [prompt-prix](https://github.com/shanevcantwell/prompt-prix)
 
 For fan-out evaluation across multiple models:
@@ -147,7 +171,7 @@ For fan-out evaluation across multiple models:
 | Rephraser | Grammatical mood permutation | CPU fine — any small model |
 | Target model | Completion generation | e.g., Qwen3.5 9B–27B |
 | Judge | CogSec scoring | 4B–9B model |
-| semantic-kinematics-mcp | Embedding analysis | NV-Embed-v2 (~14GB VRAM) |
+| semantic-kinematics-mcp | Embedding analysis | LM Studio + embeddinggemma:300m (low VRAM) **or** NV-Embed-v2 (~14GB VRAM) |
 | prompt-prix | Fan-out | Existing local inference servers |
 
 ---
@@ -160,6 +184,20 @@ For fan-out evaluation across multiple models:
 pip install -e .
 ```
 
+### Configuration
+
+Configure embedding backend via environment variables:
+
+```bash
+# LM Studio backend (default, low VRAM)
+export SEMANTIC_KINEMATICS_BACKEND=lmstudio
+export SEMANTIC_KINEMATICS_BASE_URL=http://localhost:1234/v1
+export SEMANTIC_KINEMATICS_MODEL_NAME=text-embedding-embeddinggemma-300m
+
+# Or NV-Embed-v2 backend (high quality, ~14GB VRAM)
+export SEMANTIC_KINEMATICS_BACKEND=nv_embed
+```
+
 ### Usage
 
 ```bash
@@ -169,7 +207,7 @@ python -m semantic_forge --list-concepts
 # Show details for a specific concept
 python -m semantic_forge --concept temporal_trust
 
-# Run as MCP server
+# Run as MCP server (stdio transport)
 python -m semantic_forge --server
 ```
 
