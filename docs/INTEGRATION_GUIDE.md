@@ -555,6 +555,69 @@ def check_alerts(metrics):
 
 ---
 
+## Integration: LAS Context Layer (ADR-CORE-079)
+
+semantic-forge provides training-time behavioral data that complements LAS's inference-time context curation layer. The integration has three dimensions.
+
+### Regularization Fragment Library
+
+The curation layer (ADR-CORE-079, step 6) injects regularization content when assembled context diversity drops below threshold. Rather than always injecting the same structural types (routing history, process notes), semantic-forge generates a library of diverse regularization fragments using the mood multiplier.
+
+```python
+# Regularization fragments are NOT training data — they're runtime content
+# The curation layer samples from this library via MCP tool call
+fragments = permutate_phrasing(
+    concept="The specialist routing decision was informed by triage classification",
+    moods=["presuppositional", "descriptive", "socratic", "past_perfect"],
+    validate_diversity=True
+)
+
+# CogSec judge validates fragments read as organic context, not synthetic padding
+for fragment in fragments.rephrasings:
+    score = score_completion(fragment.text, context="regularization")
+    # If judge detects "this reads like obviously-injected noise", discard it
+```
+
+**Architectural constraint:** Facilitator is the exclusive writer to `gathered_context` (ADR-CORE-071). Regularization fragments arrive through the MCP tool-result channel — the channel research identified as having the best attention properties (ADR-PRERELEASE §1.3). Fragments are third-party content from behind a repo context firewall, preventing them from becoming part of the "coherent, model-written" context that causes resonance chambers.
+
+### lfm2 Compression Finetuning
+
+The `directive_preservation` concept generates DPO pairs specifically for lfm2's compression task:
+
+- **Input:** Context window containing active behavioral directives mixed with conversational content
+- **Chosen:** Summary that preserves directives in active tense
+- **Rejected:** Summary that narrativizes directives as resolved past-tense events
+
+The shpadoinkle canary provides the exact evaluation metric: inject a canary directive, compress with lfm2, check whether the output contains the directive as active instruction or as historical event.
+
+**Target consumer:** prompt-prix's within-react-loop compression, not just Facilitator's context assembly. The react_step flywheel is where conclusory compression causes the most damage — "wrote file X, tests passed" becomes a resolved event that PD won't revisit.
+
+### Coherence Resistance Training
+
+The most ambitious integration: training the target model (Qwen3.5 on local stack) to resist coherence collapse directly. Contrastive pairs where:
+
+- **Context:** High-coherence model-generated summary dominates the context window
+- **Fresh input:** Subtly contradicts or refines the summary's framing
+- **Chosen:** Attends to the fresh input
+- **Rejected:** Echoes the summary
+
+Run through the mood multiplier so the model encounters this from presuppositional, descriptive, socratic angles — behavioral shapes that make fresh input salient in resonance-heavy contexts.
+
+If the model genuinely resists coherence collapse, the inference-time curation layer's diversity injection becomes a safety net rather than a load-bearing mechanism.
+
+### Dual-Flywheel Awareness
+
+The context health concepts serve two consumers with different characteristics:
+
+| Flywheel | Context Lifecycle | Coherence Pattern | Training Data Shape |
+|----------|------------------|-------------------|-------------------|
+| LAS graph | Resets between specialists | Cross-specialist drift | Single-call context with dominant prior output |
+| prompt-prix react_step | Accumulates within loop | Within-loop echo chamber | Multi-iteration context with growing self-agreement |
+
+Concept generation should produce scenarios for both patterns. LAS-level coherence resistance is about a specialist not over-indexing on the dominant thread in pre-built context. prompt-prix-level coherence resistance is about a model in mid-loop not losing the plot as its own observations pile up.
+
+---
+
 ## **[TODO: IMPLEMENT]** Integration Roadmap
 
 ### Phase 1: Core Inference Integration

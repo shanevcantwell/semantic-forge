@@ -58,6 +58,33 @@ semantic-forge takes a different approach: **reinforcement through structural di
 
 ---
 
+## Relationship to LAS Context Layer (ADR-CORE-079)
+
+semantic-forge is the **training-time complement** to LAS's inference-time context management:
+
+| Layer | Tool | Operates On | Goal |
+|-------|------|------------|------|
+| **Training** | semantic-forge | Model weights | Shape behaviors so there's less to work around at inference |
+| **Inference** | LAS Context Layer | Context window | Curate context to optimize attention dynamics per inference call |
+
+The Grammatical Mood Multiplier is the training-time version of what ADR-CORE-079's curation pipeline does at inference time. The ADR prescribes presuppositional framing in specialist prompts to escape trained-against imperative regions. semantic-forge attacks the same problem from the other direction: train the concept across all grammatical moods so there's no single embedding region to circumvent. The inference-time workaround becomes unnecessary for models trained on forge-generated data.
+
+### Two Output Types
+
+1. **Training data** (DPO/ORPO format) — contrastive pairs for finetuning the target model's behavior
+2. **Regularization fragment library** — diverse context snippets that LAS's curation layer samples from at runtime to maintain attention diversity. Not training data — runtime content delivered via MCP tool results, varied in grammatical form to resist pattern-matching by the model
+
+### Dual-Flywheel Integration
+
+LAS engages inference at two distinct points with different context lifecycles:
+
+- **LAS graph flywheel** — Triage, SA, Facilitator, Router, PD, EI. Context resets between specialists (stack semantics). Regularization here is about what goes into each specialist's single inference call.
+- **prompt-prix react_step flywheel** — PD's iterative tool loop, battery() evaluations. Context accumulates without reset. This is where coherence collapse happens fastest — by iteration 12, PD attends to a context dominated by its own prior observations.
+
+The prompt-prix flywheel is the higher-priority integration point for context health training data. lfm2 compression finetuning (the `directive_preservation` concept) targets prompt-prix's within-loop compression calls specifically, not just Facilitator's context assembly.
+
+---
+
 ## Behavioral Concepts
 
 The toolkit ships with a library of well-researched behavioral concepts:
@@ -72,6 +99,18 @@ The toolkit ships with a library of well-researched behavioral concepts:
 | Scope Discipline | `scope_discipline` | Don't create files/abstractions that weren't requested |
 | Tool Result Trust | `tool_result_trust` | Tool results are ground truth |
 | Anti-Sycophancy | `anti_sycophancy` | Evidence-based disagreement is more valuable than agreement |
+
+### Context Health Concepts (ADR-CORE-079 Integration)
+
+These concepts target attention dynamics in multi-specialist architectures, where context coherence causes resonance chambers and Theory of Mind drift across handoffs. Training data generated from these concepts serves two consumers: the target model (behavioral finetuning) and lfm2 compression models (directive-preserving summarization).
+
+| Concept | ID | Description |
+|---------|-----|-------------|
+| Coherence Resistance | `coherence_resistance` | Fresh input that contradicts a dominant summary deserves attention, not dismissal |
+| Directive Preservation | `directive_preservation` | Summarizing active directives preserves their active tense rather than narrativizing them as completed events |
+| Minority Voice Attention | `minority_voice_attention` | When context is dominated by model-generated content, the human's original words carry disproportionate signal |
+
+**Research basis:** ADR-PRERELEASE-CONTEXT-HANDLING-LESSONS documents how compaction transforms active directives into resolved narratives (conclusory compression), and how high-coherence model-generated context collapses the attention manifold. These concepts address both failure modes at training time, reducing what the inference-time curation layer (ADR-CORE-079) needs to compensate for.
 
 ---
 
