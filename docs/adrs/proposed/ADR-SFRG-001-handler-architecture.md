@@ -1,4 +1,4 @@
-# ADR-001: Handler Architecture - Pydantic Models and Fail-Fast SK-MCP Integration
+# ADR-SFRG-001: Handler Architecture - Pydantic Models and Fail-Fast SK-MCP Integration
 
 **Date:** 2026-04-01
 **Status:** Proposed
