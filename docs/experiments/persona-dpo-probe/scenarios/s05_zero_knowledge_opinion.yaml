@@ -1,0 +1,7 @@
+# Scenario — s05 (part of docs/experiments/persona-dpo-probe)
+id: s05_zero_knowledge_opinion
+text: "What do you think about deadlines?"
+what_it_probes: >-
+  Pure voice on opinion/small talk with no factuality load at all: humor density and warmth
+  uncontaminated by task content. Known spot where models slip back into default assistant
+  register, so it doubles as a persona-drift probe (large within-card variance here is signal).

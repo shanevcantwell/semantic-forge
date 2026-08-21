@@ -12,12 +12,19 @@ from typing import Optional
 
 @dataclass
 class InferenceBackend:
-    """Configuration for an inference backend."""
-    type: str = "ollama"  # ollama, vllm, or custom
+    """Configuration for an inference backend.
+
+    type is one of: ollama, vllm, openai (generic OpenAI-compatible endpoint).
+    For the openai type, `endpoint` is a base URL (with or without trailing /v1)
+    and `model` is the model id served at that endpoint. Both are overridable
+    per role via environment variables (see _load_from_env).
+    """
+    type: str = "ollama"  # ollama, vllm, or openai
     model: str = ""
     endpoint: str = "http://localhost:11434"
     temperature: float = 0.7
     max_tokens: int = 2048
+    api_key: Optional[str] = None  # Bearer key; openai backend falls back to env/placeholder
 
 
 @dataclass
@@ -157,7 +164,13 @@ def _dict_to_backend(data: dict) -> InferenceBackend:
         endpoint=data.get("endpoint", "http://localhost:11434"),
         temperature=data.get("temperature", 0.7),
         max_tokens=data.get("max_tokens", 2048),
+        api_key=data.get("api_key"),
     )
+
+
+# Environment variable names used to override per-role inference settings.
+# SEMANTIC_FORGE_<ROLE>_BASE_URL / _MODEL with ROLE in {REPHRASER, TARGET, JUDGE}.
+_INFER_ROLES = ("rephraser", "target", "judge")
 
 
 def _load_from_env(base_config: SemanticForgeConfig) -> SemanticForgeConfig:
@@ -169,6 +182,21 @@ def _load_from_env(base_config: SemanticForgeConfig) -> SemanticForgeConfig:
         for key in config.inference:
             if isinstance(config.inference[key], InferenceBackend):
                 config.inference[key].endpoint = os.environ["OLLAMA_ENDPOINT"]
+
+    # Per-role overrides (keep endpoints + model ids pluggable without editing JSON)
+    for role in _INFER_ROLES:
+        backend = config.inference.get(role)
+        if not isinstance(backend, InferenceBackend):
+            continue
+        base_url = os.environ.get(f"SEMANTIC_FORGE_{role.upper()}_BASE_URL")
+        model = os.environ.get(f"SEMANTIC_FORGE_{role.upper()}_MODEL")
+        api_key = os.environ.get("SEMANTIC_FORGE_API_KEY")
+        if base_url:
+            backend.endpoint = base_url
+        if model:
+            backend.model = model
+        if api_key and not backend.api_key:
+            backend.api_key = api_key
 
     # Semantic kinematics backend config
     if os.environ.get("SEMANTIC_KINEMATICS_ENDPOINT"):

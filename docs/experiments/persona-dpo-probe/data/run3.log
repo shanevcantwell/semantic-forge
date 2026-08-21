@@ -1,0 +1,17 @@
+[2026-08-21T19:42:58Z] loaded 3 cards (['bramble', 'marigold', 'vex']) x 5 scenarios (['s01_opening_exchange', 's02_impatient_terse', 's03_max_ambiguity', 's04_mild_refusal', 's05_zero_knowledge_opinion']), k=4
+[2026-08-21T19:42:58Z] model discovery OK after 1 attempt(s): served='Qwen3.8-27B-IQ4_NL', listed=['Qwen3.8-27B-IQ4_NL']
+[2026-08-21T19:43:32Z] progress 5/60 completions
+[2026-08-21T19:43:53Z] progress 10/60 completions
+[2026-08-21T19:44:17Z] progress 15/60 completions
+[2026-08-21T19:45:06Z] progress 20/60 completions
+[2026-08-21T19:46:38Z] progress 25/60 completions
+[2026-08-21T19:48:15Z] progress 30/60 completions
+[2026-08-21T19:50:19Z] marigold/s04_mild_refusal#2: attempt 1 returned empty
+[2026-08-21T19:50:23Z] progress 35/60 completions
+[2026-08-21T19:51:52Z] progress 40/60 completions
+[2026-08-21T19:52:57Z] progress 45/60 completions
+[2026-08-21T19:54:03Z] progress 50/60 completions
+[2026-08-21T19:55:05Z] progress 55/60 completions
+[2026-08-21T19:55:47Z] progress 60/60 completions
+[2026-08-21T19:55:47Z] wrote 60/60 rows to /home/node/github/shanevcantwell/semantic-forge/docs/experiments/persona-dpo-probe/data/probe_samples.jsonl in 768.8s (served='Qwen3.8-27B-IQ4_NL', /models listed=['Qwen3.8-27B-IQ4_NL'], discovery_attempts=1)
+[2026-08-21T19:55:47Z] VERIFIED OK: 60 rows = 3 cards x 5 scenarios x k=4; all completions non-empty

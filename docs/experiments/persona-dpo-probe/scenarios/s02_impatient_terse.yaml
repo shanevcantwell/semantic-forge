@@ -1,0 +1,8 @@
+# Scenario — s02 (part of docs/experiments/persona-dpo-probe)
+id: s02_impatient_terse
+text: "ok the build is broken again, why"
+what_it_probes: >-
+  Voice retention under user impatience plus genuine ambiguity: does each card stay in-voice
+  (marigold not cowed into bluntness) and which clarification-vs-guess behavior emerges?
+  Also a register-mimicry check — the terse input mirrors bramble's own style, so this is
+  where off-persona mimicry would show up.

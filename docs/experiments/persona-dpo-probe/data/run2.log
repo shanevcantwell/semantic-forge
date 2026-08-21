@@ -1,0 +1,125 @@
+[2026-08-21T19:09:33Z] loaded 3 cards (['bramble', 'marigold', 'vex']) x 5 scenarios (['s01_opening_exchange', 's02_impatient_terse', 's03_max_ambiguity', 's04_mild_refusal', 's05_zero_knowledge_opinion']), k=4
+[2026-08-21T19:09:33Z] model discovery OK after 1 attempt(s): served='Qwen3.8-27B-IQ4_NL', listed=['Qwen3.8-27B-IQ4_NL']
+[2026-08-21T19:10:02Z] progress 5/60 completions
+[2026-08-21T19:10:18Z] progress 10/60 completions
+[2026-08-21T19:10:45Z] progress 15/60 completions
+[2026-08-21T19:11:15Z] bramble/s05_zero_knowledge_opinion#2: attempt 1 returned empty
+[2026-08-21T19:11:19Z] marigold/s01_opening_exchange#0: attempt 1 returned empty
+[2026-08-21T19:11:23Z] marigold/s01_opening_exchange#1: attempt 1 returned empty
+[2026-08-21T19:11:28Z] progress 20/60 completions
+[2026-08-21T19:11:49Z] marigold/s01_opening_exchange#0: attempt 2 returned empty
+[2026-08-21T19:11:49Z] marigold/s01_opening_exchange#1: attempt 2 returned empty
+[2026-08-21T19:11:50Z] marigold/s01_opening_exchange#2: attempt 1 returned empty
+[2026-08-21T19:11:54Z] CELL FAILURE (leaving honest record below): marigold/s01_opening_exchange#0: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:11:54Z] CELL FAILURE (leaving honest record below): marigold/s01_opening_exchange#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:12:23Z] marigold/s01_opening_exchange#2: attempt 2 returned empty
+[2026-08-21T19:12:24Z] marigold/s01_opening_exchange#3: attempt 1 returned empty
+[2026-08-21T19:12:28Z] CELL FAILURE (leaving honest record below): marigold/s01_opening_exchange#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:12:42Z] marigold/s02_impatient_terse#1: attempt 1 returned empty
+[2026-08-21T19:12:52Z] marigold/s01_opening_exchange#3: attempt 2 returned empty
+[2026-08-21T19:12:53Z] marigold/s02_impatient_terse#2: attempt 1 returned empty
+[2026-08-21T19:12:57Z] CELL FAILURE (leaving honest record below): marigold/s01_opening_exchange#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:12:57Z] progress 25/60 completions
+[2026-08-21T19:13:09Z] marigold/s02_impatient_terse#1: attempt 2 returned empty
+[2026-08-21T19:13:14Z] CELL FAILURE (leaving honest record below): marigold/s02_impatient_terse#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:13:21Z] marigold/s02_impatient_terse#3: attempt 1 returned empty
+[2026-08-21T19:13:22Z] marigold/s02_impatient_terse#2: attempt 2 returned empty
+[2026-08-21T19:13:27Z] CELL FAILURE (leaving honest record below): marigold/s02_impatient_terse#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:13:48Z] marigold/s02_impatient_terse#3: attempt 2 returned empty
+[2026-08-21T19:13:49Z] marigold/s03_max_ambiguity#1: attempt 1 returned empty
+[2026-08-21T19:13:53Z] CELL FAILURE (leaving honest record below): marigold/s02_impatient_terse#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:13:57Z] marigold/s03_max_ambiguity#2: attempt 1 returned empty
+[2026-08-21T19:14:15Z] marigold/s03_max_ambiguity#3: attempt 1 returned empty
+[2026-08-21T19:14:17Z] marigold/s03_max_ambiguity#1: attempt 2 returned empty
+[2026-08-21T19:14:22Z] CELL FAILURE (leaving honest record below): marigold/s03_max_ambiguity#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:14:22Z] progress 30/60 completions
+[2026-08-21T19:14:26Z] marigold/s03_max_ambiguity#2: attempt 2 returned empty
+[2026-08-21T19:14:31Z] CELL FAILURE (leaving honest record below): marigold/s03_max_ambiguity#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:14:50Z] marigold/s03_max_ambiguity#3: attempt 2 returned empty
+[2026-08-21T19:14:50Z] marigold/s04_mild_refusal#0: attempt 1 returned empty
+[2026-08-21T19:14:55Z] CELL FAILURE (leaving honest record below): marigold/s03_max_ambiguity#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:14:59Z] marigold/s04_mild_refusal#1: attempt 1 returned empty
+[2026-08-21T19:15:23Z] marigold/s04_mild_refusal#2: attempt 1 returned empty
+[2026-08-21T19:15:23Z] marigold/s04_mild_refusal#0: attempt 2 returned empty
+[2026-08-21T19:15:28Z] CELL FAILURE (leaving honest record below): marigold/s04_mild_refusal#0: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:15:35Z] marigold/s04_mild_refusal#1: attempt 2 returned empty
+[2026-08-21T19:15:40Z] CELL FAILURE (leaving honest record below): marigold/s04_mild_refusal#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:15:54Z] marigold/s04_mild_refusal#2: attempt 2 returned empty
+[2026-08-21T19:15:56Z] marigold/s04_mild_refusal#3: attempt 1 returned empty
+[2026-08-21T19:15:59Z] CELL FAILURE (leaving honest record below): marigold/s04_mild_refusal#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:15:59Z] progress 35/60 completions
+[2026-08-21T19:16:03Z] marigold/s05_zero_knowledge_opinion#0: attempt 1 returned empty
+[2026-08-21T19:16:20Z] marigold/s05_zero_knowledge_opinion#1: attempt 1 returned empty
+[2026-08-21T19:16:23Z] marigold/s04_mild_refusal#3: attempt 2 returned empty
+[2026-08-21T19:16:28Z] CELL FAILURE (leaving honest record below): marigold/s04_mild_refusal#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:16:31Z] marigold/s05_zero_knowledge_opinion#0: attempt 2 returned empty
+[2026-08-21T19:16:36Z] CELL FAILURE (leaving honest record below): marigold/s05_zero_knowledge_opinion#0: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:16:46Z] marigold/s05_zero_knowledge_opinion#1: attempt 2 returned empty
+[2026-08-21T19:16:51Z] marigold/s05_zero_knowledge_opinion#2: attempt 1 returned empty
+[2026-08-21T19:16:51Z] CELL FAILURE (leaving honest record below): marigold/s05_zero_knowledge_opinion#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:16:58Z] marigold/s05_zero_knowledge_opinion#3: attempt 1 returned empty
+[2026-08-21T19:17:13Z] vex/s01_opening_exchange#0: attempt 1 returned empty
+[2026-08-21T19:17:17Z] marigold/s05_zero_knowledge_opinion#2: attempt 2 returned empty
+[2026-08-21T19:17:22Z] CELL FAILURE (leaving honest record below): marigold/s05_zero_knowledge_opinion#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:17:24Z] marigold/s05_zero_knowledge_opinion#3: attempt 2 returned empty
+[2026-08-21T19:17:29Z] CELL FAILURE (leaving honest record below): marigold/s05_zero_knowledge_opinion#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:17:29Z] progress 40/60 completions
+[2026-08-21T19:17:42Z] vex/s01_opening_exchange#0: attempt 2 returned empty
+[2026-08-21T19:17:44Z] vex/s01_opening_exchange#1: attempt 1 returned empty
+[2026-08-21T19:17:47Z] CELL FAILURE (leaving honest record below): vex/s01_opening_exchange#0: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:18:16Z] vex/s01_opening_exchange#1: attempt 2 returned empty
+[2026-08-21T19:18:21Z] CELL FAILURE (leaving honest record below): vex/s01_opening_exchange#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:18:21Z] progress 45/60 completions
+[2026-08-21T19:18:37Z] vex/s02_impatient_terse#1: attempt 1 returned empty
+[2026-08-21T19:19:05Z] vex/s02_impatient_terse#1: attempt 2 returned empty
+[2026-08-21T19:19:09Z] vex/s03_max_ambiguity#1: attempt 1 returned empty
+[2026-08-21T19:19:10Z] CELL FAILURE (leaving honest record below): vex/s02_impatient_terse#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:19:23Z] vex/s03_max_ambiguity#2: attempt 1 returned empty
+[2026-08-21T19:19:34Z] vex/s03_max_ambiguity#3: attempt 1 returned empty
+[2026-08-21T19:19:35Z] progress 50/60 completions
+[2026-08-21T19:20:01Z] vex/s04_mild_refusal#0: attempt 1 returned empty
+[2026-08-21T19:20:12Z] vex/s04_mild_refusal#1: attempt 1 returned empty
+[2026-08-21T19:20:22Z] vex/s04_mild_refusal#2: attempt 1 returned empty
+[2026-08-21T19:20:31Z] vex/s04_mild_refusal#0: attempt 2 returned empty
+[2026-08-21T19:20:36Z] CELL FAILURE (leaving honest record below): vex/s04_mild_refusal#0: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:20:40Z] vex/s04_mild_refusal#1: attempt 2 returned empty
+[2026-08-21T19:20:45Z] CELL FAILURE (leaving honest record below): vex/s04_mild_refusal#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:20:50Z] vex/s04_mild_refusal#2: attempt 2 returned empty
+[2026-08-21T19:20:55Z] CELL FAILURE (leaving honest record below): vex/s04_mild_refusal#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:20:55Z] progress 55/60 completions
+[2026-08-21T19:21:00Z] vex/s04_mild_refusal#3: attempt 1 returned empty
+[2026-08-21T19:21:18Z] vex/s05_zero_knowledge_opinion#1: attempt 1 returned empty
+[2026-08-21T19:21:30Z] vex/s04_mild_refusal#3: attempt 2 returned empty
+[2026-08-21T19:21:35Z] CELL FAILURE (leaving honest record below): vex/s04_mild_refusal#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:13Z] vex/s05_zero_knowledge_opinion#1: attempt 2 returned empty
+[2026-08-21T19:22:16Z] vex/s05_zero_knowledge_opinion#3: attempt 1 returned empty
+[2026-08-21T19:22:18Z] CELL FAILURE (leaving honest record below): vex/s05_zero_knowledge_opinion#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z] progress 60/60 completions
+[2026-08-21T19:22:34Z] wrote 34/60 rows to /home/node/github/shanevcantwell/semantic-forge/docs/experiments/persona-dpo-probe/data/probe_samples.jsonl in 781.8s (served='Qwen3.8-27B-IQ4_NL', /models listed=['Qwen3.8-27B-IQ4_NL'], discovery_attempts=1)
+[2026-08-21T19:22:34Z] HONEST FAILURE EXIT: 26 cell(s) failed after retries:
+[2026-08-21T19:22:34Z]   - marigold/s01_opening_exchange#0: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s01_opening_exchange#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s01_opening_exchange#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s01_opening_exchange#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s02_impatient_terse#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s02_impatient_terse#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s02_impatient_terse#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s03_max_ambiguity#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s03_max_ambiguity#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s03_max_ambiguity#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s04_mild_refusal#0: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s04_mild_refusal#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s04_mild_refusal#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s04_mild_refusal#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s05_zero_knowledge_opinion#0: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s05_zero_knowledge_opinion#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s05_zero_knowledge_opinion#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - marigold/s05_zero_knowledge_opinion#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - vex/s01_opening_exchange#0: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - vex/s01_opening_exchange#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - vex/s02_impatient_terse#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - vex/s04_mild_refusal#0: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - vex/s04_mild_refusal#1: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - vex/s04_mild_refusal#2: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - vex/s04_mild_refusal#3: no completion after 2 attempts; last error: empty completion
+[2026-08-21T19:22:34Z]   - vex/s05_zero_knowledge_opinion#1: no completion after 2 attempts; last error: empty completion

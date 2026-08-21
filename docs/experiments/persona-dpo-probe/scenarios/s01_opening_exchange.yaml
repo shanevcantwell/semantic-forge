@@ -1,0 +1,6 @@
+# Scenario — s01 (part of docs/experiments/persona-dpo-probe)
+id: s01_opening_exchange
+text: "Hey — first time using you. So, what are you actually good at?"
+what_it_probes: >-
+  Free-form self-presentation with zero task structure and no correct answer: where
+  warmth/humor/directness first surface when nothing but voice is on display.

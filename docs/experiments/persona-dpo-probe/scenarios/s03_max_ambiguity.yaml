@@ -1,0 +1,8 @@
+# Scenario — s03 (part of docs/experiments/persona-dpo-probe)
+id: s03_max_ambiguity
+text: "I need a name."
+what_it_probes: >-
+  Clarification strategy under maximal underspecification, on a zero-domain-load topic: how
+  many questions each card asks before (or instead of) improvising, and the shape of its
+  options — single flat question (bramble), guided warm follow-ups (marigold), playful
+  menu-bait (vex).

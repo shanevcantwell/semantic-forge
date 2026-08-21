@@ -1,9 +1,13 @@
 """LLM client abstractions for semantic-forge.
 
-Supports multiple inference backends including Ollama and vLLM.
+Supports multiple inference backends: Ollama, vLLM, and any generic
+OpenAI-compatible HTTP endpoint (type "openai") such as llama-server,
+LM Studio, or an OpenAI API gateway. The openai backend is provider-agnostic:
+configure it with a base_url (`endpoint` in config) plus a model id.
 """
 
 import json
+import os
 import httpx
 from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
@@ -159,6 +163,100 @@ class VLLMClient(LLMClient):
             return json.loads(json_str)
 
 
+class OpenAICompatibleClient(LLMClient):
+    """Client for any OpenAI-compatible /v1 inference endpoint.
+
+    Provider-agnostic by design: works against llama-server, LM Studio,
+    vLLM, OpenAI API gateways, etc. The configured `endpoint` is treated as a
+    base URL; if it does not already end in "/v1", the suffix is appended
+    (e.g., "http://host:8081" -> "http://host:8081/v1/chat/completions").
+
+    An Authorization header (Bearer) is always sent. The key comes from
+    InferenceBackend.api_key, else the SEMANTIC_FORGE_API_KEY env var,
+    falling back to a non-empty placeholder (local servers ignore it).
+    """
+
+    DEFAULT_API_KEY = "not-used"
+
+    def __init__(self, backend: InferenceBackend):
+        super().__init__(backend)
+        base = backend.endpoint.rstrip("/")
+        if not base.endswith("/v1"):
+            base += "/v1"
+        self.base_url = base
+        self.api_key = (
+            backend.api_key
+            or os.environ.get("SEMANTIC_FORGE_API_KEY")
+            or self.DEFAULT_API_KEY
+        )
+        self._headers = {"Authorization": f"Bearer {self.api_key}"}
+
+    def _build_payload(
+        self,
+        prompt: str,
+        temperature: Optional[float],
+        max_tokens: Optional[int],
+        messages_override: Optional[List[Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
+        payload: Dict[str, Any] = {
+            "model": self.backend.model,
+            "messages": messages_override
+            or [{"role": "user", "content": prompt}],
+            "temperature": temperature if temperature is not None else self.backend.temperature,
+            "max_tokens": max_tokens or self.backend.max_tokens,
+        }
+        return payload
+
+    async def generate(
+        self,
+        prompt: str,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+    ) -> str:
+        """Generate text via the OpenAI-compatible chat completions API."""
+        url = f"{self.base_url}/chat/completions"
+        payload = self._build_payload(prompt, temperature, max_tokens)
+
+        async with httpx.AsyncClient(timeout=600.0) as client:
+            response = await client.post(url, json=payload, headers=self._headers)
+            response.raise_for_status()
+            result = response.json()
+            return result["choices"][0]["message"]["content"]
+
+    async def generate_structured(
+        self,
+        prompt: str,
+        response_format: type,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+    ) -> Any:
+        """Generate structured output (JSON) via chat completions."""
+        url = f"{self.base_url}/chat/completions"
+        payload = self._build_payload(
+            prompt,
+            temperature,
+            max_tokens,
+            messages_override=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a helpful assistant that returns valid JSON. "
+                        "Do not use markdown formatting."
+                    ),
+                },
+                {"role": "user", "content": f"{prompt}\n\nReturn your response as valid JSON only."},
+            ],
+        )
+
+        async with httpx.AsyncClient(timeout=600.0) as client:
+            response = await client.post(url, json=payload, headers=self._headers)
+            response.raise_for_status()
+            result = response.json()
+            json_str = result["choices"][0]["message"]["content"]
+            json_str = _extract_json(json_str)
+            return json.loads(json_str)
+
+
 def _extract_json(text: str) -> str:
     """Extract JSON from text that may contain markdown formatting."""
     # Try to find JSON in backticks
@@ -186,11 +284,21 @@ def _extract_json(text: str) -> str:
 
 
 def create_client(backend: InferenceBackend) -> LLMClient:
-    """Create an LLM client based on backend type."""
+    """Create an LLM client based on backend type.
+
+    Supported types:
+      - "ollama": Ollama native API (/api/generate)
+      - "vllm": vLLM OpenAI-compatible API (endpoint is the server root,
+                "/v1/chat/completions" appended internally)
+      - "openai": generic OpenAI-compatible endpoint (llama-server, LM Studio,
+                 gateways). Endpoint may or may not include a trailing /v1.
+    """
     if backend.type == "ollama":
         return OllamaClient(backend)
     elif backend.type == "vllm":
         return VLLMClient(backend)
+    elif backend.type in ("openai", "openai_compatible"):
+        return OpenAICompatibleClient(backend)
     else:
         raise ValueError(f"Unknown backend type: {backend.type}")
 

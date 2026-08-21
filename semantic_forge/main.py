@@ -21,7 +21,6 @@ async def run_server() -> None:
     Note: This server uses stdio transport only (stdio JSON-RPC).
     The --host and --port arguments are not applicable.
     """
-    from mcp.server import StdioServerParameters
     from mcp.server.stdio import stdio_server
 
     server = Server("semantic-forge")
@@ -29,11 +28,11 @@ async def run_server() -> None:
     # Register handlers
     await register_handlers(server)
 
-    # Run the server using stdio transport
-    print("Starting semantic-forge MCP server (stdio transport)")
+    # Status messages go to stderr: stdout is the JSON-RPC protocol channel
+    print("Starting semantic-forge MCP server (stdio transport)", file=sys.stderr)
 
     async with stdio_server() as (read, write):
-        await server.run(read, write, StdioServerParameters(command="python", args=["-m", "semantic_forge"]))
+        await server.run(read, write, server.create_initialization_options())
 
 
 def list_concepts() -> None:

@@ -15,6 +15,7 @@ from semantic_forge.mcp import (
     ValidateTrajectoryParams,
     BuildDatasetParams,
     DatasetStatsParams,
+    get_all_tools,
 )
 from semantic_forge.data_models import (
     ContrastivePair,
@@ -604,33 +605,74 @@ JSON output:"""
             })
 
 
-async def register_handlers(server: Server) -> None:
-    """Register all handlers with the MCP server.
+# Routing table: tool name -> (params model, handler method).
+_TOOL_ROUTES = {
+    "permutate_phrasing": "handle_permutate_phrasing",
+    "generate_scenario": "handle_generate_scenario",
+    "generate_contrastive_pair": "handle_generate_contrastive_pair",
+    "build_dataset": "handle_build_dataset",
+    "score_completion": "handle_score_completion",
+    "validate_diversity": "handle_validate_diversity",
+    "validate_trajectory": "handle_validate_trajectory",
+    "dataset_stats": "handle_dataset_stats",
+}
 
-    Handlers that return Pydantic models are wrapped to serialize to CallToolResult.
+_PARAMS_MODELS = {
+    "permutate_phrasing": PermutatePhrasingParams,
+    "generate_scenario": GenerateScenarioParams,
+    "generate_contrastive_pair": GenerateContrastivePairParams,
+    "build_dataset": BuildDatasetParams,
+    "score_completion": ScoreCompletionParams,
+    "validate_diversity": ValidateDiversityParams,
+    "validate_trajectory": ValidateTrajectoryParams,
+    "dataset_stats": DatasetStatsParams,
+}
+
+
+def _serialize_result(result: Any) -> CallToolResult:
+    """Serialize handler results to a CallToolResult.
+
+    Handlers return either a Pydantic model (or list of them), which is JSON-encoded
+    into text content, or an already-built CallToolResult, which passes through.
+    """
+    if isinstance(result, CallToolResult):
+        return result
+    if isinstance(result, list):
+        items = [r.model_dump() for r in result]
+        return CallToolResult(content=[TextContent(type="text", text=json.dumps({"items": items}))])
+    # Single Pydantic model (or any object exposing model_dump)
+    if hasattr(result, "model_dump"):
+        return CallToolResult(
+            content=[TextContent(type="text", text=json.dumps(result.model_dump()))]
+        )
+    raise TypeError(f"Unsupported handler result type: {type(result)}")
+
+
+async def register_handlers(server: Server) -> None:
+    """Register all tools and the call dispatcher with the MCP server.
+
+    Uses the low-level SDK's decorator-based registration (`@server.list_tools()`
+    and `@server.call_tool()`): tool definitions come from get_all_tools(), and
+    calls are routed to SemanticForgeHandlers methods after validating arguments
+    against each tool's Pydantic params model.
+
+    Handlers that return Pydantic models are serialized to CallToolResult; handlers
+    returning CallToolResult pass through unchanged.
     """
     handlers = SemanticForgeHandlers()
 
-    # Wrapper to serialize Pydantic models to CallToolResult
-    def wrap_model_handler(handler_func):
-        async def wrapper(params):
-            result = await handler_func(params)
-            # Handle both single models and lists
-            if isinstance(result, list):
-                return handlers._make_result({"items": [r.model_dump() for r in result]})
-            else:
-                return handlers._make_result(result.model_dump())
-        return wrapper
+    @server.list_tools()
+    async def _list_tools():
+        return get_all_tools()
 
-    # Register handlers with server
-    # Handlers returning Pydantic models need wrapping
-    server.register_tool("permutate_phrasing")(wrap_model_handler(handlers.handle_permutate_phrasing))
-    server.register_tool("generate_scenario")(wrap_model_handler(handlers.handle_generate_scenario))
-    server.register_tool("generate_contrastive_pair")(wrap_model_handler(handlers.handle_generate_contrastive_pair))
-    server.register_tool("build_dataset")(wrap_model_handler(handlers.handle_build_dataset))
-
-    # Handlers already returning CallToolResult don't need wrapping
-    server.register_tool("score_completion")(handlers.handle_score_completion)
-    server.register_tool("validate_diversity")(handlers.handle_validate_diversity)
-    server.register_tool("validate_trajectory")(handlers.handle_validate_trajectory)
-    server.register_tool("dataset_stats")(handlers.handle_dataset_stats)
+    @server.call_tool()
+    async def _call_tool(name: str, arguments: dict[str, Any]):
+        if name not in _TOOL_ROUTES:
+            return CallToolResult(
+                content=[TextContent(type="text", text=f"Unknown tool: {name}")],
+                isError=True,
+            )
+        params = _PARAMS_MODELS[name].model_validate(arguments)
+        handler = getattr(handlers, _TOOL_ROUTES[name])
+        result = await handler(params)
+        return _serialize_result(result)
