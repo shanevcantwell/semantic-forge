@@ -90,6 +90,18 @@ conditioning with prompt-slot changes, not a structural rewrite.
     live API, not llaunch metadata) activates the embedding-distance filter and discards a
     non-zero fraction of generated pairs; expect at most one small config-shape touch
     (endpoint vs base_url/model_name redundancy), no client rewrite.
+    - *Refinement 2026-08-22, static recon `persona-dpo-multiply/recon-forge-stages.md` §3/§5,
+      pre-run, before any observation:* two corrections from code state at e160aca. (i) `endpoint`
+      is NOT a URL — it is the executable stdio command of the semantic-kinematics-mcp bridge
+      (`_parse_endpoint` forms: bare command / "cmd,arg..." / docker); `base_url`/`model_name`
+      already hold the correct :8082 pooled values, so light-up is a one-field config flip to an
+      existing executable. (ii) The discard clause cannot hold as written —
+      `filter_by_embedding_distance` / `filter_by_cogsec_score` are defined but never called in
+      any build path; SK live populates pair distance data, nothing discards. Decision: P3 run1
+      adds no package code (H0-faithful: zero edits); the missing filter call is exactly
+      semantic-forge#5 item 1, already banked there. Bonus defect found in recon (§5):
+      `permutate_phrasing`'s diversity check silently no-ops on a dead `_get_embedding` call —
+      run1 uses `validate_diversity:false`; filed as its own issue.
   - **P3-c (signature survival):** P2's register divergence (median ~133 bramble / ~425 vex /
     ~646 marigold chars @ max_tokens=2048, run3) persists through multiplication — per-card
     length distributions in generated pairs stay ordered and separated, not collapsed to one
