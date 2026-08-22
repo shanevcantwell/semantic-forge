@@ -50,6 +50,13 @@ Everything below is operational context the roadmap deliberately doesn't carry.
    :8082 as `-nonpooled` while the live API served `-pooled`; unresolved at handoff).
 5. **Never touch `docs/absurdism/`** in this repo — operator material, untracked by design; exclude
    from every commit scope.
+6. **No second large checkpoint on inference-host while :8081 serves.** Operator direction 2026-08-22:
+   specifically `huihui-ai_Qwen3-Coder-Next-abliterated-Q4_K_L` (confirmed present in the live llaunch
+   inventory that day) would saturate the RTX-8000 pool alongside an in-flight server. The remote branch
+   `origin/qwen3-coder-next` is named for this model — do not infer git-work meaning from that name; its 2
+   commits (6859b7a, 258af90) stay unverified and operator-deferred, no destructive git ops without an
+   explicit ask. Consequence for P3/P4: plans must reuse already-running servers (:8081 chat / :8082
+   embeddings); any new endpoint needs its own explicit go.
 
 ## Parked / open (deliberately, not lost)
 
