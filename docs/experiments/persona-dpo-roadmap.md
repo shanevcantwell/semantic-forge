@@ -73,12 +73,32 @@ pointed at tiny -it checkpoints unchanged. Record: `docs/experiments/persona-dpo
   median length bramble ~133 / vex ~425 / marigold ~646 chars; no chain-of-thought leakage
   into content. Full per-cell data + dated results log in the probe README.
 
-### P3 `forge-multiply` — multiply through semantic-forge  *(pending)*
+### P3 `forge-multiply` — multiply through semantic-forge  *(gate opened 2026-08-22 UTC by operator; pre-run predictions below precede any observation)*
 Feed P2 seeds into the factory's rephrase/scenario/pair stages to confirm it generalizes
 from its native behavioral/structural axis (Grammatical Mood Multiplier) to persona
 conditioning with prompt-slot changes, not a structural rewrite.
 - **H0:** pair generation generalizes to persona conditioning without core edits; what is
   missing is the persona slot + a persona-relevant scoring signal, both additive.
+- **Pre-run predictions — 2026-08-22 UTC, written before any P3 observation** (cross-ref:
+  run3 record in `docs/experiments/persona-dpo-probe/README.md`; handoff `persona-dpo-handoff`):
+  - **P3-a (tests H0):** persona conditioning reaches the rephrase/scenario/pair stages via
+    prompt-slot arguments / additive config only; no stage-internal rewrite is needed to pass
+    seeded persona prompts through. Falsified if any core edit is required for the pipeline to
+    accept them.
+  - **P3-b (SK leg, first-ever light-up):** flipping `semantic_kinematics.endpoint` from
+    `null` to a live :8082 embedding URL (`embeddinggemma-300M-F32-pooled` — identity per the
+    live API, not llaunch metadata) activates the embedding-distance filter and discards a
+    non-zero fraction of generated pairs; expect at most one small config-shape touch
+    (endpoint vs base_url/model_name redundancy), no client rewrite.
+  - **P3-c (signature survival):** P2's register divergence (median ~133 bramble / ~425 vex /
+    ~646 marigold chars @ max_tokens=2048, run3) persists through multiplication — per-card
+    length distributions in generated pairs stay ordered and separated, not collapsed to one
+    shared register. If they collapse, that is the null result this phase exists to catch
+    early: bank it as such, do not repair en route.
+  - **P3-d (budget friction):** end-to-end time exceeds P2's 769 s single-stage sweep by a
+    stage-multiplication factor; cap batch size and total API calls up front (shared KV pool
+    on :8081 — one background agent at a time), treat overrun as signal to shrink the batch,
+    not to uncap it.
 
 ### P4 `target-selection` — pick QLoRA/DPO target(s) for RTX-3090  *(pending)*
 Selection is over **HF safetensors checkpoints**, not llaunch inventory names — the
