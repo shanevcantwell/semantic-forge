@@ -116,3 +116,4 @@ ties). Resolved when P5 checkpoints exist and there is something to score.
   react runner; seed material), semantic-kinematics-mcp (measurement primitives for the P6
   judge axis-signal option), thought-vault-integration (`embedding_bridge.py` as reference
   llama-server embeddings client).
+- Handoff for clean-context resume (P1/P2 closed): `docs/experiments/persona-dpo-handoff.md`
