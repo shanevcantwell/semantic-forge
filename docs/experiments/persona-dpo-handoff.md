@@ -60,9 +60,9 @@ Everything below is operational context the roadmap deliberately doesn't carry.
 
 ## Parked / open (deliberately, not lost)
 
-- **frontier_advisor critique of the roadmap:** operator asked for it; the tool/service was not
-  resolvable from this vantage (no MCP tool matching "frontier"; no agent file under
-  `~/.pi/agent/agents/`). Parked until the operator points at where it lives.
+- **frontier_advisor critique of the roadmap:** CLOSED — operator direction 2026-08-22: "nothing to do
+  with this task." Do not re-offer it as a rescope option. (Originally parked because the tool/service was
+  unresolvable from that vantage; superseded by out-of-scope.)
 - **Roadmap open decisions** (DPO-select semantics a/b; P6 judge strategy) stay deferred by design
   until P3/P5 data exists — do not close them early or bake assumptions into P3.
 - llaunch inventory notes: ~24 models on inference-host, most stopped; P4 target selection is over
