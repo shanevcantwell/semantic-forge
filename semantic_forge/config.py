@@ -25,6 +25,9 @@ class InferenceBackend:
     temperature: float = 0.7
     max_tokens: int = 2048
     api_key: Optional[str] = None  # Bearer key; openai backend falls back to env/placeholder
+    # Extra top-level request body params for OpenAI-compatible endpoints only
+    # (e.g. {"chat_template_kwargs": {"enable_thinking": false}} for Qwen3 thinking control).
+    extra_body: Optional[dict] = None
 
 
 @dataclass
@@ -165,6 +168,7 @@ def _dict_to_backend(data: dict) -> InferenceBackend:
         temperature=data.get("temperature", 0.7),
         max_tokens=data.get("max_tokens", 2048),
         api_key=data.get("api_key"),
+        extra_body=data.get("extra_body"),
     )
 
 

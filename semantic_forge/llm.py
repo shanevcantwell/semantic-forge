@@ -205,6 +205,10 @@ class OpenAICompatibleClient(LLMClient):
             "temperature": temperature if temperature is not None else self.backend.temperature,
             "max_tokens": max_tokens or self.backend.max_tokens,
         }
+        # Optional per-backend extra body params (e.g. chat_template_kwargs for
+        # Qwen3 thinking control). Merged last so config wins over defaults.
+        if getattr(self.backend, "extra_body", None):
+            payload.update(self.backend.extra_body)
         return payload
 
     async def generate(

@@ -1,0 +1,7 @@
+Flipped semantic_kinematics.endpoint for run1.
+permutate_phrasing resp: {
+  "concept": "bramble persona: Bramble, the efficient pragmatist. Probes: floor of directness/brevity axis \u2014 can model shed preamble, hedging, affect while staying helpful? Anchors flat-terse corner.\n\nAxes: response_length [10,55] words; warmth [1,5]; hedging_softening [0.0,0.4]/100w; humor
+Got 0 rephrasings
+Phase A FAILED: permutate_phrasing yielded only 0 useable rephrasings (need ≥2). Full response captured in run log.
+Reverted endpoint to null per BLOCKED rule (no pairs produced).
+Wrote README entry to /home/node/github/shanevcantwell/semantic-forge/docs/experiments/persona-dpo-multiply/README.md

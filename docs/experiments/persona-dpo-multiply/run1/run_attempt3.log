@@ -1,0 +1,120 @@
+error: externally-managed-environment
+
+× This environment is externally managed
+╰─> To install Python packages system-wide, try apt install
+    python3-xyz, where xyz is the package you are trying to
+    install.
+    
+    If you wish to install a non-Debian-packaged Python package,
+    create a virtual environment using python3 -m venv path/to/venv.
+    Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make
+    sure you have python3-full installed.
+    
+    If you wish to install a non-Debian packaged Python application,
+    it may be easiest to use pipx install xyz, which will manage a
+    virtual environment for you. Make sure you have pipx installed.
+    
+    See /usr/share/doc/python3.12/README.venv for more information.
+
+note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
+hint: See PEP 668 for the detailed specification.
+unhandled exception during asyncio.run() shutdown
+task: <Task finished name='Task-1' coro=<run_server() done, defined at /home/node/github/shanevcantwell/semantic-kinematics-mcp/semantic_kinematics/mcp/server.py:97> exception=BaseExceptionGroup('unhandled errors in a TaskGroup', [BaseExceptionGroup('unhandled errors in a TaskGroup', [BaseExceptionGroup('unhandled errors in a TaskGroup', [SystemExit(1)])])])>
+  + Exception Group Traceback (most recent call last):
+  |   File "/home/node/github/shanevcantwell/semantic-kinematics-mcp/semantic_kinematics/mcp/server.py", line 99, in run_server
+  |     async with stdio_server() as (read_stream, write_stream):
+  |   File "/usr/lib/python3.12/contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/home/node/.local/lib/python3.12/site-packages/mcp/server/stdio.py", line 85, in stdio_server
+  |     async with anyio.create_task_group() as tg:
+  |   File "/home/node/.local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/home/node/.local/lib/python3.12/site-packages/mcp/server/stdio.py", line 88, in stdio_server
+    |     yield read_stream, write_stream
+    |   File "/home/node/github/shanevcantwell/semantic-kinematics-mcp/semantic_kinematics/mcp/server.py", line 100, in run_server
+    |     await server.run(
+    |   File "/home/node/.local/lib/python3.12/site-packages/mcp/server/lowlevel/server.py", line 662, in run
+    |     async with AsyncExitStack() as stack:
+    |   File "/usr/lib/python3.12/contextlib.py", line 754, in __aexit__
+    |     raise exc_details[1]
+    |   File "/usr/lib/python3.12/contextlib.py", line 737, in __aexit__
+    |     cb_suppress = await cb(*exc_details)
+    |                   ^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/node/.local/lib/python3.12/site-packages/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/node/.local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+    |     raise BaseExceptionGroup(
+    | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Exception Group Traceback (most recent call last):
+      |   File "/home/node/.local/lib/python3.12/site-packages/mcp/server/lowlevel/server.py", line 679, in run
+      |     async with anyio.create_task_group() as tg:
+      |   File "/home/node/.local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+      |     raise BaseExceptionGroup(
+      | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+      +-+---------------- 1 ----------------
+        | Traceback (most recent call last):
+        |   File "/home/node/github/shanevcantwell/semantic-kinematics-mcp/semantic_kinematics/mcp/commands/trajectory.py", line 178, in _get_nlp
+        |     self._nlp = spacy.load("en_core_web_sm")
+        |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        |   File "/home/node/.local/lib/python3.12/site-packages/spacy/__init__.py", line 74, in load
+        |     return util.load_model(
+        |            ^^^^^^^^^^^^^^^^
+        |   File "/home/node/.local/lib/python3.12/site-packages/spacy/util.py", line 531, in load_model
+        |     raise IOError(Errors.E050.format(name=name))
+        | OSError: [E050] Can't find model 'en_core_web_sm'. It doesn't seem to be a Python package or a valid path to a data directory.
+        | 
+        | During handling of the above exception, another exception occurred:
+        | 
+        | Traceback (most recent call last):
+        |   File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+        |     return runner.run(main)
+        |            ^^^^^^^^^^^^^^^^
+        |   File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+        |     return self._loop.run_until_complete(task)
+        |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        |   File "/usr/lib/python3.12/asyncio/base_events.py", line 674, in run_until_complete
+        |     self.run_forever()
+        |   File "/usr/lib/python3.12/asyncio/base_events.py", line 641, in run_forever
+        |     self._run_once()
+        |   File "/usr/lib/python3.12/asyncio/base_events.py", line 1987, in _run_once
+        |     handle._run()
+        |   File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+        |     self._context.run(self._callback, *self._args)
+        |   File "/home/node/.local/lib/python3.12/site-packages/anyio/_core/_tasks.py", line 275, in _run_coro
+        |     retval = await self._coro
+        |              ^^^^^^^^^^^^^^^^
+        |   File "/home/node/.local/lib/python3.12/site-packages/mcp/server/lowlevel/server.py", line 709, in _handle_message
+        |     await self._handle_request(message, req, session, lifespan_context, raise_exceptions)
+        |   File "/home/node/.local/lib/python3.12/site-packages/mcp/server/lowlevel/server.py", line 776, in _handle_request
+        |     response = await handler(req)
+        |                ^^^^^^^^^^^^^^^^^^
+        |   File "/home/node/.local/lib/python3.12/site-packages/mcp/server/lowlevel/server.py", line 541, in handler
+        |     results = await func(tool_name, arguments)
+        |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        |   File "/home/node/github/shanevcantwell/semantic-kinematics-mcp/semantic_kinematics/mcp/server.py", line 65, in call_tool
+        |     result = await trajectory.analyze_trajectory(state_manager, arguments)
+        |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        |   File "/home/node/github/shanevcantwell/semantic-kinematics-mcp/semantic_kinematics/mcp/commands/trajectory.py", line 586, in analyze_trajectory
+        |     metrics = analyzer.analyze(text)
+        |               ^^^^^^^^^^^^^^^^^^^^^^
+        |   File "/home/node/github/shanevcantwell/semantic-kinematics-mcp/semantic_kinematics/mcp/commands/trajectory.py", line 393, in analyze
+        |     sentences = self.tokenize_sentences(text)
+        |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        |   File "/home/node/github/shanevcantwell/semantic-kinematics-mcp/semantic_kinematics/mcp/commands/trajectory.py", line 187, in tokenize_sentences
+        |     nlp = self._get_nlp()
+        |           ^^^^^^^^^^^^^^^
+        |   File "/home/node/github/shanevcantwell/semantic-kinematics-mcp/semantic_kinematics/mcp/commands/trajectory.py", line 181, in _get_nlp
+        |     download("en_core_web_sm")
+        |   File "/home/node/.local/lib/python3.12/site-packages/spacy/cli/download.py", line 101, in download
+        |     download_model(filename, pip_args, custom_url)
+        |   File "/home/node/.local/lib/python3.12/site-packages/spacy/cli/download.py", line 189, in download_model
+        |     run_command(cmd)
+        |   File "/home/node/.local/lib/python3.12/site-packages/spacy/util.py", line 1095, in run_command
+        |     sys.exit(ret.returncode)
+        | SystemExit: 1
+        +------------------------------------
