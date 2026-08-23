@@ -1,7 +1,7 @@
 # Persona-DPO — Handoff for Clean Context
 
 - **Handle:** `persona-dpo-handoff` (cross-reference by handle, not title)
-- **Written:** 2026-08-22 ~02:5x UTC (≈ 2026-08-21 ~21:5x US/Mountain — the operator's clock; container runs UTC)
+- **Written:** 2026-08-22, early-morning container-UTC (≈ evening of 2026-08-21 for the operator in US/Mountain)
 - **Close anchor:** commit `1a199ea` on `main`, pushed to origin (`github.com/shanevcantwell/semantic-forge`)
 
 ## If you are a cold reader starting here
