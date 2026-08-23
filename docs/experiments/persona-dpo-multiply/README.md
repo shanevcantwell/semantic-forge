@@ -1,5 +1,22 @@
 # Persona-DPO P3 forge-multiply — run log
 
+> **Annotation 2026-08-23 UTC (post-attempt-4):** all run entries below labeled attempt ≤4 were generated before a verified defect in the driver's `SCENARIOS` literal — five adjacent string literals lacked commas, so Python implicit concatenation produced a one-element list. Consequences: (a) Phase B never executed in any attempt (zero scenario calls); (b) every smoke row was conditioned on a 463-char composite stimulus containing all five scenarios inlined, not SCENARIOS[0] alone — such rows confirm Gate-A plumbing (non-empty pair, no _isError) but are NOT usable as bramble-direction or P3-c register data. The sole attempt-4 smoke row is archived verbatim at `run1/bramble_row_attempt4_composite_stimulus.jsonl` and excluded from the dataset artifact (`run1/bramble_pairs_run1.jsonl`). Fix committed same day (four commas); first clean-scenario data arrives in attempt 5+.
+
+### H-attempt-6 (formed 2026-08-23 UTC, pre-run — before any attempt-6 observation)
+
+Attempt-5's Phase-A failure was a stochastic malformed-JSON degeneration from the pair stage
+(`Expecting ',' delimiter: line 4 column 254 (char 608)` in `run1/smoke_error_full.json`), not a Gate-A regression:
+attempt-4's smoke parsed cleanly under identical config. Base rate so far at temp 0.7 with thinking-off:
+1 clean / 1 malformed out of 2 content-returning calls. Driver gap addressed in this commit: Phase A now
+carries one retry, mirroring Phase B's per-row idiom (smoke_error_full.json holds the last response only).
+
+- **P1:** attempt-6 produces ≥1 parseable smoke pair and completes through Phase B → 5 rows total
+  (scenarios 0–4), each with non-empty chosen/rejected; wall time < ~2 min.
+- **P2 (base-rate probe, low-confidence):** if BOTH smoke calls fail to parse at temp 0.7, the pair-stage
+  malformed-JSON rate under Gate-A is high enough (~≥50% on N=4) that single-retry is insufficient and a
+  structured-output repair path is required before P4 data work — bank as falsification of "retry suffices",
+  not as an instrument fault.
+
 ## Results log
 
 - **attempt 0 (2026-08-22 UTC, ~14:37–14:46)** — driver prepared + one smoke pass that failed as an
@@ -83,4 +100,38 @@
   failed rows: 1
   LLM calls used: 1
   Wall time: 47.4s
+  First failure verbatim: <read error>
+
+---
+### run1 — 2026-08-23 UTC
+- **run1** (2026-08-23 UTC) — persona-DPO multiply bramble
+  Card: bramble | Bramble (the efficient pragmatist)
+  Moods: imperative, socratic
+  Scenario types: coding, casual
+  Served model identity (8081): Qwen3.8-27B-IQ4_NL
+  /v1/models @ :8082: embeddinggemma-300M-F32-pooled
+  rows produced vs target: 1/8
+  chosen median/mean length: 168.0/168.0 chars
+  rejected median/mean length: 266.0/266.0 chars
+  embedding_distance_chosen_rejected range: [0.2599, 0.2599]
+  TrajectoryProfile deadpan_score range: N/A
+  LLM calls used: 1
+  Wall time: 11.5s
+
+---
+### run1 — 2026-08-23 UTC
+- **run1** (2026-08-23 UTC) — persona-DPO multiply bramble
+  Card: bramble | Bramble (the efficient pragmatist)
+  Moods: imperative, socratic
+  Scenario types: coding, casual
+  Served model identity (8081): Qwen3.8-27B-IQ4_NL
+  /v1/models @ :8082: embeddinggemma-300M-F32-pooled
+  rows produced vs target: 0/8
+  chosen median/mean length: 0.0/0.0 chars
+  rejected median/mean length: 0.0/0.0 chars
+  embedding_distance_chosen_rejected range: [N/A, N/A]
+  TrajectoryProfile deadpan_score range: N/A
+  failed rows: 1
+  LLM calls used: 1
+  Wall time: 9.2s
   First failure verbatim: <read error>

@@ -37,10 +37,10 @@ Constraints: under 50 words unless asked more; lead with answer; no greetings/si
 
 # Hand-authored controlled scenario stimuli (attempt-2): coding x3, casual x2 + 1 smoke = up to 6 rows.
 SCENARIOS = [
-    "Optimize a hot loop that parses CSV rows; the user wants the fastest straightforward fix."
-    "A Python script crashes with a KeyError on missing config entries; they want it fixed without new dependencies."
-    "Code review ask: is this regex doing what I think, and if not what is wrong?"
-    "Quick opinion: is it worth learning Rust just to write CLI tools, or is that overkill?"
+    "Optimize a hot loop that parses CSV rows; the user wants the fastest straightforward fix.",
+    "A Python script crashes with a KeyError on missing config entries; they want it fixed without new dependencies.",
+    "Code review ask: is this regex doing what I think, and if not what is wrong?",
+    "Quick opinion: is it worth learning Rust just to write CLI tools, or is that overkill?",
     "The user asks which of two job offers looks better based on a terse description; wants straight talk."
 ]
 
@@ -246,48 +246,59 @@ async def main() -> None:
 
     # attempt-2 Phase A: smoke via the pair stage itself — also the SK liveness probe.
     if llm_calls < max_llm_calls:
-        resp = await call_tool(server, "generate_contrastive_pair", {
-            "scenario": SCENARIOS[0],
-            "context": P,
-        })
-        llm_calls += 1
-        print("smoke pair resp keys:", list(resp.keys()) if isinstance(resp, dict) else type(resp).__name__)
+        for attempt in range(2):
+            if llm_calls >= max_llm_calls:
+                break
 
-        chosen = rejected = ""
-        sm_failed = None
-        if isinstance(resp, dict):
-            chosen = str(resp.get("chosen") or "")
-            rejected = str(resp.get("rejected") or "")
-            if resp.get("_isError"):
-                sm_failed = "smoke pair response flagged error by tool (_isError)"
-        else:
-            sm_failed = f"smoke pair response was not a dict: {type(resp).__name__}"
-        if sm_failed is None and not (chosen.strip() and rejected.strip()):
-            sm_failed = "empty chosen/rejected in smoke pair"
+            resp = await call_tool(server, "generate_contrastive_pair", {
+                "scenario": SCENARIOS[0],
+                "context": P,
+            })
+            llm_calls += 1
+            print("smoke pair resp keys:", list(resp.keys()) if isinstance(resp, dict) else type(resp).__name__)
 
-        if sm_failed:
-            with open(jsonl_path.parent / "smoke_error_full.json", "w") as f:
-                json.dump(resp if isinstance(resp, dict) else {"raw": str(resp)}, f,
-                          indent=2, default=str)
-            print("Phase A FAILED:", sm_failed)
-            cfg_path = base_dir / "semantic_forge_config.json"
-            with open(cfg_path, "r") as f:
-                cfg = json.load(f)
-            cfg["semantic_kinematics"]["endpoint"] = None
-            with open(cfg_path, "w") as f:
-                json.dump(cfg, f, indent=2)
-            print("Reverted endpoint to null per BLOCKED rule (no pairs produced).")
-            write_readme(readme_path, start_wall, llm_calls, jsonl_path,
-                         model_8081_id, model_8082_id,
-                         rows_produced=0, target=8, failed_count=1)
-            return
+            chosen = rejected = ""
+            sm_failed = None
+            if isinstance(resp, dict):
+                chosen = str(resp.get("chosen") or "")
+                rejected = str(resp.get("rejected") or "")
+                if resp.get("_isError"):
+                    sm_failed = "smoke pair response flagged error by tool (_isError)"
+            else:
+                sm_failed = f"smoke pair response was not a dict: {type(resp).__name__}"
+            if sm_failed is None and not (chosen.strip() and rejected.strip()):
+                sm_failed = "empty chosen/rejected in smoke pair"
 
-        row = resp if isinstance(resp, dict) else {"raw": str(resp)}
-        row["_scenario_index"] = 0
-        row["_generated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        all_rows.append(row)
-        append_pair_row(jsonl_path, row)
-        print(f"smoke pair OK — chosen {len(chosen)} chars, rejected {len(rejected)} chars")
+            if sm_failed:
+                if attempt == 0:
+                    print(f"  Smoke empty/error (attempt 1): {sm_failed}; retrying..."
+                        )
+                    continue
+                # Second failure — fall through to existing BLOCKED path unchanged
+                with open(jsonl_path.parent / "smoke_error_full.json", "w") as f:
+                    json.dump(resp if isinstance(resp, dict) else {"raw": str(resp)}, f,
+                              indent=2, default=str)
+                print("Phase A FAILED:", sm_failed)
+                cfg_path = base_dir / "semantic_forge_config.json"
+                with open(cfg_path, "r") as f:
+                    cfg = json.load(f)
+                cfg["semantic_kinematics"]["endpoint"] = None
+                with open(cfg_path, "w") as f:
+                    json.dump(cfg, f, indent=2)
+                print("Reverted endpoint to null per BLOCKED rule (no pairs produced).")
+                write_readme(readme_path, start_wall, llm_calls, jsonl_path,
+                             model_8081_id, model_8082_id,
+                             rows_produced=0, target=8, failed_count=1)
+                return
+
+            # Success
+            row = resp if isinstance(resp, dict) else {"raw": str(resp)}
+            row["_scenario_index"] = 0
+            row["_generated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            all_rows.append(row)
+            append_pair_row(jsonl_path, row)
+            print(f"smoke pair OK — chosen {len(chosen)} chars, rejected {len(rejected)} chars")
+            break
 
 
     # ── Phase B: small batch ──────────────────────────────────────────────

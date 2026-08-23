@@ -1,0 +1,44 @@
+unhandled exception during asyncio.run() shutdown
+task: <Task finished name='Task-3' coro=<<async_generator_athrow without __name__>()> exception=RuntimeError('Attempted to exit cancel scope in a different task than it was entered in')>
+  + Exception Group Traceback (most recent call last):
+  |   File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    | asyncio.exceptions.CancelledError
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 197, in stdio_client
+    |     await process.stdin.aclose()
+    |   File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1117, in aclose
+    |     await AsyncIOBackend.checkpoint()
+    |   File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2497, in checkpoint
+    |     await sleep(0)
+    |   File "/usr/lib/python3.12/asyncio/tasks.py", line 656, in sleep
+    |     await __sleep0()
+    |   File "/usr/lib/python3.12/asyncio/tasks.py", line 650, in __sleep0
+    |     yield
+    | GeneratorExit
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 182, in stdio_client
+    async with (
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 821, in __aexit__
+    if self.cancel_scope.__exit__(type(exc), exc, exc.__traceback__):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 464, in __exit__
+    raise RuntimeError(
+RuntimeError: Attempted to exit cancel scope in a different task than it was entered in
+endpoint already set: /home/node/.local/bin/semantic-kinematics-mcp
+smoke pair resp keys: ['raw', '_isError']
+Phase A FAILED: smoke pair response flagged error by tool (_isError)
+Reverted endpoint to null per BLOCKED rule (no pairs produced).
+Wrote README entry to /home/node/github/shanevcantwell/semantic-forge/docs/experiments/persona-dpo-multiply/README.md
