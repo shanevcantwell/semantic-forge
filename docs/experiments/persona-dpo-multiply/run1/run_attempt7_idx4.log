@@ -1,0 +1,4 @@
+endpoint already set: /home/node/.local/bin/semantic-kinematics-mcp
+generate_contrastive_pair (attempt 1) resp keys: ['prompt', 'chosen', 'rejected', 'chosen_cogsec_score', 'rejected_cogsec_score', 'chosen_trajectory', 'rejected_trajectory', 'embedding_distance_chosen_rejected', '_isError']
+attempt7 idx=4 OK — chosen 127 chars rejected 259 chars
+dist=0.1557

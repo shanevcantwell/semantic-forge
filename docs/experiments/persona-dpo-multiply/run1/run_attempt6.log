@@ -1,0 +1,106 @@
+Task exception was never retrieved
+future: <Task finished name='Task-3' coro=<<async_generator_athrow without __name__>()> exception=RuntimeError('Attempted to exit cancel scope in a different task than it was entered in')>
+  + Exception Group Traceback (most recent call last):
+  |   File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    | GeneratorExit
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 182, in stdio_client
+    async with (
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 821, in __aexit__
+    if self.cancel_scope.__exit__(type(exc), exc, exc.__traceback__):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 464, in __exit__
+    raise RuntimeError(
+RuntimeError: Attempted to exit cancel scope in a different task than it was entered in
+an error occurred during closing of asynchronous generator <async_generator object stdio_client at 0x7ca84c605690>
+asyncgen: <async_generator object stdio_client at 0x7ca84c605690>
+  + Exception Group Traceback (most recent call last):
+  |   File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    | GeneratorExit
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 182, in stdio_client
+    async with (
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 821, in __aexit__
+    if self.cancel_scope.__exit__(type(exc), exc, exc.__traceback__):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 464, in __exit__
+    raise RuntimeError(
+RuntimeError: Attempted to exit cancel scope in a different task than it was entered in
+Flipped semantic_kinematics.endpoint for run1.
+smoke pair resp keys: ['prompt', 'chosen', 'rejected', 'chosen_cogsec_score', 'rejected_cogsec_score', 'chosen_trajectory', 'rejected_trajectory', 'embedding_distance_chosen_rejected', '_isError']
+smoke pair OK — chosen 318 chars, rejected 444 chars
+Traceback (most recent call last):
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/streams/memory.py", line 118, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/streams/memory.py", line 113, in receive_nowait
+    raise WouldBlock
+anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/node/github/shanevcantwell/semantic-forge/docs/experiments/persona-dpo-multiply/run1/run_bramble_run1.py", line 401, in <module>
+    asyncio.run(main())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/docs/experiments/persona-dpo-multiply/run1/run_bramble_run1.py", line 320, in main
+    resp_pair = await call_tool(server, "generate_contrastive_pair", {
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/docs/experiments/persona-dpo-multiply/run1/run_bramble_run1.py", line 70, in call_tool
+    wrapped = await dispatch(req)
+              ^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/mcp/server/lowlevel/server.py", line 541, in handler
+    results = await func(tool_name, arguments)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/semantic_forge/handlers.py", line 677, in _call_tool
+    result = await handler(params)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/semantic_forge/handlers.py", line 253, in handle_generate_contrastive_pair
+    await sk_client.model_status()
+  File "/home/node/github/shanevcantwell/semantic-forge/semantic_forge/integrations.py", line 181, in model_status
+    return await self._call_tool("model_status", {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/semantic_forge/integrations.py", line 230, in _call_tool
+    result = await self._session.call_tool(name, arguments)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/mcp/client/session.py", line 401, in call_tool
+    result = await self.send_request(
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 292, in send_request
+    response_or_error = await response_stream_reader.receive()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/streams/memory.py", line 126, in receive
+    await receive_event.wait()
+  File "/home/node/github/shanevcantwell/semantic-forge/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1866, in wait
+    await self._event.wait()
+  File "/usr/lib/python3.12/asyncio/locks.py", line 212, in wait
+    await fut
+asyncio.exceptions.CancelledError: Cancelled via cancel scope 7ca84c5ae850 by <Task pending name='Task-3' coro=<<async_generator_athrow without __name__>()>>

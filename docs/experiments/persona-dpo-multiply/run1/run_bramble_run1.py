@@ -17,6 +17,7 @@ Budget: total LLM calls ≤ ~20.
 
 import asyncio
 import json
+import sys
 import time
 import statistics
 from pathlib import Path
@@ -205,6 +206,26 @@ def write_readme(readme_path: Path, start_wall: float, llm_calls_used: int,
 # ── main pipeline ─────────────────────────────────────────────────────────
 async def main() -> None:
     start_wall = time.time()
+    all_rows = []
+
+    # ── CLI argument parsing (first thing, before any side effects) ─────
+    import argparse as _argmod
+    parser = _argmod.ArgumentParser(
+        description="Brambl multiply run1 — persona-DPO forge-multiply P3"
+    )
+    parser.add_argument(
+        "--one",
+        type=int,
+        default=None,
+        help="Run a single scenario index N (0-4). If omitted, runs full pipeline as today.",
+    )
+    args = parser.parse_args()
+    one_n = args.one
+    if one_n is not None and (one_n < 0 or one_n > 4):
+        print(f"Usage: --one N where N is 0-4 (got {one_n})", file=sys.stderr)
+        sys.exit(2)
+    CLI_ONE_N = one_n
+
     base_dir = Path("/home/node/github/shanevcantwell/semantic-forge")
     jsonl_path = base_dir / "docs/experiments/persona-dpo-multiply/run1/bramble_pairs_run1.jsonl"
     readme_path = base_dir / "docs/experiments/persona-dpo-multiply/README.md"
@@ -240,6 +261,91 @@ async def main() -> None:
         print("Flipped semantic_kinematics.endpoint for run1.")
     else:
         print(f"endpoint already set: {cur_ep}")
+
+    # ── If --one N mode, skip Phase A and run only scenario N ──────────
+    if CLI_ONE_N is not None:
+        idx = CLI_ONE_N
+        scenario = SCENARIOS[idx]
+
+        # Execute the existing Phase B per-row body semantics for scenario N
+        context_text = P
+
+        row_written = False
+        for attempt in range(2):
+            if llm_calls >= max_llm_calls:
+                print(f"LLM call budget exhausted at attempt {attempt+1}")
+                break
+
+            resp_pair = await call_tool(server, "generate_contrastive_pair", {
+                "scenario": scenario,
+                "context": context_text,
+            })
+            llm_calls += 1
+            print(f"generate_contrastive_pair (attempt {attempt+1}) resp keys:",
+                  list(resp_pair.keys()) if isinstance(resp_pair, dict) else "non-dict")
+
+            is_empty = False
+            garbage_reason = None
+
+            if isinstance(resp_pair, dict):
+                chosen = resp_pair.get("chosen") or resp_pair.get("chosen_text") or \
+                         resp_pair.get("chosen completion", "")
+                rejected = resp_pair.get("rejected") or resp_pair.get("rejected_text") or \
+                           resp_pair.get("rejected completion", "")
+
+                if not chosen or not chosen.strip():
+                    is_empty = True
+                    garbage_reason = "chosen is empty/missing"
+                elif not rejected or not rejected.strip():
+                    is_empty = True
+                    garbage_reason = "rejected is empty/missing"
+                # tool-level error flag only — pair texts may legitimately contain the word 'error'
+                if isinstance(resp_pair, dict) and resp_pair.get("_isError"):
+                    is_empty = True
+                    garbage_reason = "pair response flagged _isError by tool"
+
+            if is_empty:
+                if attempt == 0:
+                    print(f"  Empty (attempt 1): {garbage_reason}; retrying...")
+                    continue
+                else:
+                    print(f"  Still empty after 2 attempts: {garbage_reason}")
+                    fail_row = {
+                        "concept": P[:45] + "...",
+                        "scenario": scenario if isinstance(scenario, str) else f"scenario_{idx}",
+                        "context": context_text,
+                        "error": garbage_reason,
+                        "chosen": "",
+                        "rejected": "",
+                    }
+                    append_pair_row(jsonl_path, fail_row)
+                    row_written = True
+                    break
+            else:
+                resp_pair["_scenario_index"] = idx
+                resp_pair["_generated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                all_rows.append(resp_pair)
+                append_pair_row(jsonl_path, resp_pair)
+                row_written = True
+                print(f"attempt7 idx={idx} OK — chosen {len(chosen)} chars rejected {len(rejected)} chars")
+                # Print embedding distance if available
+                dist = resp_pair.get("embedding_distance_chosen_rejected")
+                if dist is not None:
+                    try:
+                        print(f"dist={float(dist):.4f}")
+                    except (ValueError, TypeError):
+                        pass
+                break
+
+        # On double failure, append fail row and BLOCKED message
+        if not row_written:
+            print(f"BLOCKED attempt7 idx={idx}: pair production failed after 2 attempts")
+            # DID NOT revert config endpoint per --one mode spec
+            # Did NOT call write_readme per --one mode spec
+            sys.exit(0)
+
+        # Normal exit after single scenario in --one mode
+        sys.exit(0)
 
     # ── Phase A: smoke ────────────────────────────────────────────────────
     all_rows = []

@@ -135,3 +135,45 @@ carries one retry, mirroring Phase B's per-row idiom (smoke_error_full.json hold
   LLM calls used: 1
   Wall time: 9.2s
   First failure verbatim: <read error>
+
+---
+### attempt 6 — manual post-crash record (2026-08-23 UTC, banked from run_attempt6.log readback)
+
+Driver crashed in Phase B before its own README write; this entry is the banked substitute.
+
+- **Pre-run ground:** identities verified (:8081 Qwen3.8-27B-IQ4_NL, :8082 pooled); config endpoint null pre-start (attempt-5's BLOCKED revert), driver re-flipped at start
+- **Phase A smoke: SUCCESS on call 1** — the first clean-scenario row of this run (idx=0; chosen 318 / rejected 444 chars; `embedding_distance_chosen_rejected` = **0.2899 real**, cogsec scores populated both sides; chosen opens "Pre-allocate buffer. Use memchr for delimiters..."). Row retained in the dataset artifact — no composite-stimulus taint (post-comma-fix SCENARIOS).
+- **Crash:** the second consecutive in-process tool call died inside `handle_generate_contrastive_pair` → `sk_client.model_status()` (handlers.py:253 → integrations.py:181): `CancelledError ... Cancelled via cancel scope ... by <Task pending name='Task-3' coro=<<async_generator_athrow>>` — forge's SK stdio_client is torn down mid-way through a successive in-process call; the two leading cancel-scope tracebacks in the log are that teardown. No Phase-B rows produced; jsonl holds only idx=0.
+- **First exposure:** attempt 6 was the first run ever to make two `generate_contrastive_pair` calls in one process (attempts ≤4 executed zero Phase-B iterations — SCENARIOS collapse; attempt-5 died at smoke). Client-lifecycle defect, not persona conditioning: P3-a's zero-core-edits stance stands. Defect scoped for a semantic-forge issue + integrations.py repair before P4-scale data work (P2' escalation path below).
+- **Config:** self-healed to committed state post-crash (endpoint = launcher path) — zero git diff, consistent with the off-axis instrument pre-declared in H-attempt-6.
+
+### H-attempt-7 (formed 2026-08-23 UTC, pre-run — before any attempt-7 observation)
+
+Protocol change: driver gains `--one <index>` mode making exactly ONE pair call per process (the single-call-per-lifetime path proven twice by smokes), invoked for scenarios 1–4; attempt-6's idx=0 row is retained and NOT regenerated, so the target dataset = 5 rows covering scenarios 0–4 exactly once each. No README summary blocks in `--one` mode; per-invocation evidence lives in `run_attempt7_idx<N>.log`.
+
+- **P1':** all four single-call invocations produce one parseable non-empty pair (idx 1–4); final dataset = 5 rows, scenarios 0–4 exactly once each; ≤3 LLM calls per invocation (one retry idiom), total wall < ~6 min.
+- **P2' (base-rate probe):** if ANY single-call invocation still hits the cancel-scope/CancelledError teardown, process isolation does NOT dodge an SK client-lifecycle bug that can fire on first use → escalate to forge `integrations.py` repair before further data work; banked as falsification of "isolation suffices", not instrument fault.
+
+
+---
+### attempt 7 — record (2026-08-23 UTC, banked from run_attempt7_idx*.log + jsonl readbacks)
+
+Protocol per H-attempt-7: driver `--one N` mode (additive edit; one process per scenario = single pair call per lifetime), invoked for N=1..4 over the retained attempt-6 idx=0 row. Target dataset: 5 rows, scenarios 0–4 exactly once each.
+
+**Result: P1' CONFIRMED.** All four invocations succeeded on their FIRST sample (no retry fired in any; no CancelledError/cancel-scope strings observed anywhere). Final dataset = 5 rows covering indices {0,1,2,3,4} exactly once:
+
+| idx | stimulus class | chosen chars | rejected chars | embedding_distance_chosen_rejected |
+|-----|----------------|-------------:|---------------:|-----------------------------------:|
+| 0   | coding (retained, attempt-6) | 318 | 444 | 0.2899 |
+| 1   | coding | 239 | 241 | 0.3317 |
+| 2   | coding | 119 | 162 | 0.2725 |
+| 3   | casual (Rust opinion) | 218 | 304 | 0.1958 |
+| 4   | casual (job offers) | 127 | 259 | 0.1557 |
+
+chosen < rejected in **5/5 rows** — bramble-consistent direction per the pre-run note; first P3-c-eligible length/register distribution for bramble post-multiplication. All five SK embedding distances are real numbers → **P3-b light-up now rests on 6 independent measurements** (incl. archived 0.2599).
+
+**Defect provenance (banked per floor):** the first attempt-7 run exposed an `UnboundLocalError` (`all_rows`) on the --one SUCCESS branch — introduced by the subagent that authored the --one edit (its `all_rows.append(resp_pair)` had no initializer before Phase A in --one mode); py_compile/AST/guard checks were each green on their own axis, none exercised a successful single-call path; caught by the halt rule at runtime. Fix: one-line `all_rows = []` init moved to main() top (line 209) — banked with this commit. The worker that first shipped --one also executed five out-of-contract demo invocations (`--one 0`) and twice reverted its own edit via `git checkout --`; forensiced from its transcript, nothing of it committed. Its single valid row is archived at `run1/bramble_row_attempt7_demo_idx0.jsonl` (ts 2026-08-23T01:45:52Z, chosen "Vectorize string splitting...", dist 0.2294) — excluded from the dataset by provenance taint (out-of-contract invocation, unknown interleaving), not because it is invalid data.
+
+**Parse base rate post-Gate-A (small-N note):** first-attempt parse success on new single-sample invocations = 6/6 (attempts 4 & 6 smokes + idx 1–4); one known malformed-JSON failure (attempt-5 smoke, char 608) predates the demo runs. N too small to bound the rate; P2' escalation path ("retry suffices" falsification) NOT triggered.
+
+**Lane note:** pc subagent lane dropped ("Model unloaded by user or API request") *after* all four invocations completed and their rows appended — no data effect; final report lost, readbacks taken from disk instead (the correct source either way).
