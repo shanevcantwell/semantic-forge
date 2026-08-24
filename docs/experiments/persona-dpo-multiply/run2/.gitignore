@@ -1,0 +1,3 @@
+# experiment evidence overrides repo-wide *.log / *.jsonl ignores
+!*.log
+!*.jsonl

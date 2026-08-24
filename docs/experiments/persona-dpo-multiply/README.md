@@ -198,3 +198,29 @@ Qwen3.8-27B-IQ4_NL for the multiply phase. The pc factory (`192.168.137.1:8081`,
 **H-gemma-think results (same day; 3 pair-shaped calls + 1 instrument-discarded):** ALL arms `finish=stop` in-budget — A default 175 completion tokens / B `enable_thinking:false` 141 / C `thinking:false` 141. **P-gemma-think FALSIFIED:** no thinking-mode budget exhaustion on this gemma-3 llama.cpp serve; the attempts 0–2 failure mode was Qwen-specific. Content shape: valid JSON wrapped in ```json fences under all arms — forge's OpenAI client already strips these (`_extract_json`, `llm.py`) plus an anti-markdown system message, so **no package edit needed** (P3-a zero-core-edits stance holds). Pre-committed decision rule applied as written: config keeps the existing `enable_thinking:false` as a no-op guard; only model strings flip. Instrument note: one earlier arm-A call was received then discarded by a local parse bug in the probe script (`json.load` on bytes) — attempt-0 class, no observation lost.
 
 Protocol: three per-card drivers in run2/ cloned from the attempt-7 driver verbatim, diffs limited to docstring/server name/card label/P payload/jsonl path/log labels. SCENARIOS literals unchanged from post-comma-fix run1. P payloads composed verbatim from `cards/*.yaml` (probes + trait_axes ranges + style_constraints) in bramble's concise form. Per-invocation evidence: teed logs `run2/run_<card>_idx<N>.log`; README summary blocks banked by the orchestrator after disk readback (--one mode writes no README).
+
+---
+### attempt 8 / run2 — record (2026-08-24 UTC; HALTED at vex idx=1 per pre-committed P2')
+
+Factory: `gemma-3-12b-it-IQ4_NL` @ inference-host:8081 (config model flip in d53a791). Protocol per H-attempt-8: run2/ per-card drivers, `--one N`, fresh artifacts. Pair calls consumed: 8 across the partial batch (bramble ×5 first-sample clean; vex idx0 ×1 first-sample clean; vex idx1 ×2 incl. failed retry) + 4 pre-run probe calls under H-gemma-think.
+
+**Bramble: COMPLETE — 5/5 rows {0..4}, chosen<rejected in 5/5.**
+
+| idx | stimulus class | chosen chars | rejected chars | embedding_distance_chosen_rejected |
+|-----|----------------|-------------:|---------------:|-----------------------------------:|
+| 0   | coding         | 142          | 404            | 0.1722                             |
+| 1   | coding         | 188          | 367            | 0.1250                             |
+| 2   | coding         | 116          | 298            | 0.2556                             |
+| 3   | casual (Rust)  | 28           | 372            | 0.3014                             |
+| 4   | casual (offers)| 59           | 485            | 0.1963                             |
+
+All first-sample successes; all distances real (P3-b light-up now also rests on gemma-factory measurements). Median chosen = 116 chars — terser than the Qwen-era bramble dataset, direction-consistent with the card's [10,55]-word floor.
+
+**Vex: idx=0 OK (chosen 397 / rejected 650, dist 0.1401); idx=1 INCOMPLETE — process died.** P2' TRIGGERED; batch halted per pre-committed rule. Vex idx 1–4 (incl. re-attempt of the failed one) and all marigold rows remain unattempted = **9 invocations outstanding**.
+
+**Mechanism forensics (`run2/run_vex_idx1.log`, full readback):**
+- Attempt 1 of idx=1 returned tool-level `_isError` with a `raw` payload the driver did not persist (--one error path prints resp keys only — instrumentation gap; Qwen-era first-sample parses were 6/6, so this is new under gemma and its cause is unadjudicated from disk).
+- The retry idiom's attempt 2 then died at `sk_client.initialize()` (handlers.py:251 → integrations.py:101): `CancelledError ... by <Task pending coro=<async_generator_athrow>>` — delta-5's SK teardown defect, with a refinement: the first call's failed tool result left its stdio-client teardown pending process-wide; mcp also logged `RuntimeError: Attempted to exit cancel scope in a different task than it was entered in`. A second in-process call cannot initialize against that state.
+- Net: process isolation dodges the defect ONLY while each process makes at most one pair call — any in-process retry re-enters it.
+
+**Operator fork (open, per waterfall pacing):** (a) strict P2' reading — stop data work until forge `integrations.py` SK lifecycle is repaired; or (b) strip the driver's in-process retry (`--one N` becomes single-shot; a failed index re-runs from a FRESH process), keeping every invocation on the proven one-call-per-lifetime path while the integrations.py repair proceeds as the named P4 precondition. Either way: SK-teardown issue filed with this record as second-exposure evidence; the vex idx=1 fresh-process single-shot re-attempt doubles as the transient-vs-systematic test for attempt 1's `_isError`.
