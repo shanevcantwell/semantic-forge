@@ -1,0 +1,5 @@
+# experiment evidence overrides repo-wide *.log / *.jsonl ignores (run1/run2 pattern)
+!*.log
+!*.jsonl
+# torch.compile cache materialized in-cwd by the unsloth import layer (E7) — generated, not evidence
+unsloth_compiled_cache/

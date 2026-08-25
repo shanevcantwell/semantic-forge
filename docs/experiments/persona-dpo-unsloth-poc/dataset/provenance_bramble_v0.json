@@ -1,0 +1,61 @@
+{
+  "built_at": "2026-08-24T23:50:16+00:00",
+  "card": "docs/experiments/persona-dpo-probe/cards/bramble.yaml",
+  "system_sha256": "ef40c58f2b7d6ded8dcd6ccb9dee43a147150265b476f186989d0f43874e5380",
+  "driver": "docs/experiments/persona-dpo-multiply/run2/run_bramble_gemma.py",
+  "rows_source": "docs/experiments/persona-dpo-multiply/run2/bramble_pairs_gemma3.jsonl",
+  "n_rows": 5,
+  "provenance": [
+    {
+      "scenario_index": 0,
+      "run2_jsonl_line": 1,
+      "generated_at": "2026-08-24T16:27:34Z",
+      "prompt_source": "driver_literal_match",
+      "chars": {
+        "chosen": 142,
+        "rejected": 404
+      }
+    },
+    {
+      "scenario_index": 1,
+      "run2_jsonl_line": 2,
+      "generated_at": "2026-08-24T16:28:26Z",
+      "prompt_source": "driver_literal_match",
+      "chars": {
+        "chosen": 188,
+        "rejected": 367
+      }
+    },
+    {
+      "scenario_index": 2,
+      "run2_jsonl_line": 3,
+      "generated_at": "2026-08-24T16:28:32Z",
+      "prompt_source": "driver_literal_match",
+      "chars": {
+        "chosen": 116,
+        "rejected": 298
+      }
+    },
+    {
+      "scenario_index": 3,
+      "run2_jsonl_line": 4,
+      "generated_at": "2026-08-24T16:28:38Z",
+      "prompt_source": "driver_literal_match",
+      "chars": {
+        "chosen": 28,
+        "rejected": 372
+      }
+    },
+    {
+      "scenario_index": 4,
+      "run2_jsonl_line": 5,
+      "generated_at": "2026-08-24T16:28:45Z",
+      "prompt_source": "logged_field_expansion",
+      "driver_literal": "The user asks which of two job offers looks better based on a terse description; wants straight talk.",
+      "chars": {
+        "chosen": 59,
+        "rejected": 485
+      }
+    }
+  ]
+}
