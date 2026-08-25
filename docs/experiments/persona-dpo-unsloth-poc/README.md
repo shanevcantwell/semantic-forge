@@ -80,6 +80,17 @@ effective environment (a hand patch made to the retired `.venv` is documented hi
   (b) run with CWD = experiment dir, free of stale `unsloth_compiled_cache/` dirs: the import layer materializes a
   fresh cache in-cwd (gitignored here); other cwds carried old caches from earlier forge runs and routed imports
   through them.
+- **E8:** HF blob egress via squid 403s the xet domains (`cas-server.xethub.hf.co`, `us.aws.cdn.hf.co`) while
+  direct container egress to them is open; with proxy vars unset for the process + `HF_HUB_DISABLE_XET=1`, the
+  client takes huggingface.co → signed AWS-CDN bridge (302) and streams. Pre-run weight prefetch already landed
+  under this recipe: 7.4 GiB in ~/hf-cache (6.3 min; readback of both safetensors + tokenizer present). The train
+  script needs no network for the model now — these vars are the pin for any future fetch (stage-2, export leg,
+  fresh machines).
+- **E9:** factory identity event (ground truth at run-prep time): `:8081` live `/v1/models` reports
+  `Qwen3.8-27B-IQ4_NL` (llauncher label agreed this time — not metadata drift; PID cross-check:
+  nvidia-smi's 35 GiB consumer == llauncher's :8081 server). P-coexist baseline is re-grounded to the identity
+  live at run start: whatever serves `:8081`/`:8082` before training must serve identically after. Operator-factory
+  call, surfaced; not acted on.
 - **Probe readback (post-resolution, pre-training):** `import unsloth` + `from trl import DPOConfig, DPOTrainer`
   clean; RTX 8000 visible from PyTorch (CUDA build 13.0); 45.4 GiB VRAM free at last check (serving lane
   currently idle — P-coexist verifies identity at run end regardless).
