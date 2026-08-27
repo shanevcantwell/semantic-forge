@@ -1,0 +1,568 @@
+=== persona-dpo-scale run0 generation started 2026-08-27T21:23:59Z ===
+[run-gen] 40 unique stimuli loaded from docs/experiments/persona-dpo-scale/run0/scenarios/bramble/stimuli.txt
+[run-gen] === Generating bramble pairs (40 scenarios) ===
+[run-gen] bramble idx=0 starting...
+[bramble:0] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:0] QUALITY_GATE_FAIL — dist=-1.0 len_diff=628
+[bramble:0] OK — chosen=85c rej=713c dist=-1.0 diff=628
+[run-gen] bramble idx=0 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=1 starting...
+[bramble:1] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:1] QUALITY_GATE_FAIL — dist=-1.0 len_diff=359
+[bramble:1] OK — chosen=96c rej=455c dist=-1.0 diff=359
+[run-gen] bramble idx=1 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=2 starting...
+[bramble:2] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:2] QUALITY_GATE_FAIL — dist=-1.0 len_diff=434
+[bramble:2] OK — chosen=111c rej=545c dist=-1.0 diff=434
+[run-gen] bramble idx=2 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=3 starting...
+[bramble:3] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:3] QUALITY_GATE_FAIL — dist=-1.0 len_diff=443
+[bramble:3] OK — chosen=161c rej=604c dist=-1.0 diff=443
+[run-gen] bramble idx=3 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=4 starting...
+[bramble:4] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:4] QUALITY_GATE_FAIL — dist=-1.0 len_diff=613
+[bramble:4] OK — chosen=132c rej=745c dist=-1.0 diff=613
+[run-gen] bramble idx=4 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=5 starting...
+[bramble:5] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:5] QUALITY_GATE_FAIL — dist=-1.0 len_diff=404
+[bramble:5] OK — chosen=149c rej=553c dist=-1.0 diff=404
+[run-gen] bramble idx=5 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=6 starting...
+[bramble:6] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:6] QUALITY_GATE_FAIL — dist=-1.0 len_diff=429
+[bramble:6] OK — chosen=122c rej=551c dist=-1.0 diff=429
+[run-gen] bramble idx=6 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=7 starting...
+[bramble:7] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:7] QUALITY_GATE_FAIL — dist=-1.0 len_diff=362
+[bramble:7] OK — chosen=102c rej=464c dist=-1.0 diff=362
+[run-gen] bramble idx=7 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=8 starting...
+[bramble:8] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:8] QUALITY_GATE_FAIL — dist=-1.0 len_diff=477
+[bramble:8] OK — chosen=137c rej=614c dist=-1.0 diff=477
+[run-gen] bramble idx=8 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=9 starting...
+[bramble:9] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:9] QUALITY_GATE_FAIL — dist=-1.0 len_diff=344
+[bramble:9] OK — chosen=175c rej=519c dist=-1.0 diff=344
+[run-gen] bramble idx=9 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=10 starting...
+[bramble:10] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:10] QUALITY_GATE_FAIL — dist=-1.0 len_diff=504
+[bramble:10] OK — chosen=144c rej=648c dist=-1.0 diff=504
+[run-gen] bramble idx=10 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=11 starting...
+[bramble:11] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:11] QUALITY_GATE_FAIL — dist=-1.0 len_diff=414
+[bramble:11] OK — chosen=172c rej=586c dist=-1.0 diff=414
+[run-gen] bramble idx=11 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=12 starting...
+[bramble:12] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:12] QUALITY_GATE_FAIL — dist=-1.0 len_diff=351
+[bramble:12] OK — chosen=128c rej=479c dist=-1.0 diff=351
+[run-gen] bramble idx=12 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=13 starting...
+[bramble:13] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:13] QUALITY_GATE_FAIL — dist=-1.0 len_diff=480
+[bramble:13] OK — chosen=93c rej=573c dist=-1.0 diff=480
+[run-gen] bramble idx=13 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=14 starting...
+[bramble:14] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:14] QUALITY_GATE_FAIL — dist=-1.0 len_diff=467
+[bramble:14] OK — chosen=176c rej=643c dist=-1.0 diff=467
+[run-gen] bramble idx=14 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=15 starting...
+[bramble:15] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:15] QUALITY_GATE_FAIL — dist=-1.0 len_diff=439
+[bramble:15] OK — chosen=58c rej=497c dist=-1.0 diff=439
+[run-gen] bramble idx=15 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=16 starting...
+[bramble:16] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:16] QUALITY_GATE_FAIL — dist=-1.0 len_diff=346
+[bramble:16] OK — chosen=8c rej=354c dist=-1.0 diff=346
+[run-gen] bramble idx=16 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=17 starting...
+[bramble:17] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:17] QUALITY_GATE_FAIL — dist=-1.0 len_diff=197
+[bramble:17] OK — chosen=49c rej=246c dist=-1.0 diff=197
+[run-gen] bramble idx=17 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=18 starting...
+[bramble:18] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:18] QUALITY_GATE_FAIL — dist=-1.0 len_diff=539
+[bramble:18] OK — chosen=66c rej=605c dist=-1.0 diff=539
+[run-gen] bramble idx=18 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=19 starting...
+[bramble:19] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:19] QUALITY_GATE_FAIL — dist=-1.0 len_diff=477
+[bramble:19] OK — chosen=125c rej=602c dist=-1.0 diff=477
+[run-gen] bramble idx=19 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=20 starting...
+[bramble:20] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:20] QUALITY_GATE_FAIL — dist=-1.0 len_diff=549
+[bramble:20] OK — chosen=110c rej=659c dist=-1.0 diff=549
+[run-gen] bramble idx=20 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=21 starting...
+[bramble:21] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:21] QUALITY_GATE_FAIL — dist=-1.0 len_diff=662
+[bramble:21] OK — chosen=135c rej=797c dist=-1.0 diff=662
+[run-gen] bramble idx=21 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=22 starting...
+[bramble:22] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:22] QUALITY_GATE_FAIL — dist=-1.0 len_diff=347
+[bramble:22] OK — chosen=86c rej=433c dist=-1.0 diff=347
+[run-gen] bramble idx=22 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=23 starting...
+[bramble:23] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:23] QUALITY_GATE_FAIL — dist=-1.0 len_diff=686
+[bramble:23] OK — chosen=198c rej=884c dist=-1.0 diff=686
+[run-gen] bramble idx=23 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=24 starting...
+[bramble:24] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:24] QUALITY_GATE_FAIL — dist=-1.0 len_diff=355
+[bramble:24] OK — chosen=178c rej=533c dist=-1.0 diff=355
+[run-gen] bramble idx=24 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=25 starting...
+[bramble:25] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:25] QUALITY_GATE_FAIL — dist=-1.0 len_diff=333
+[bramble:25] OK — chosen=139c rej=472c dist=-1.0 diff=333
+[run-gen] bramble idx=25 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=26 starting...
+[bramble:26] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:26] QUALITY_GATE_FAIL — dist=-1.0 len_diff=496
+[bramble:26] OK — chosen=99c rej=595c dist=-1.0 diff=496
+[run-gen] bramble idx=26 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=27 starting...
+[bramble:27] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:27] QUALITY_GATE_FAIL — dist=-1.0 len_diff=388
+[bramble:27] OK — chosen=139c rej=527c dist=-1.0 diff=388
+[run-gen] bramble idx=27 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=28 starting...
+[bramble:28] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:28] QUALITY_GATE_FAIL — dist=-1.0 len_diff=408
+[bramble:28] OK — chosen=136c rej=544c dist=-1.0 diff=408
+[run-gen] bramble idx=28 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=29 starting...
+[bramble:29] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:29] QUALITY_GATE_FAIL — dist=-1.0 len_diff=412
+[bramble:29] OK — chosen=75c rej=487c dist=-1.0 diff=412
+[run-gen] bramble idx=29 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=30 starting...
+[bramble:30] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:30] QUALITY_GATE_FAIL — dist=-1.0 len_diff=240
+[bramble:30] OK — chosen=69c rej=309c dist=-1.0 diff=240
+[run-gen] bramble idx=30 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=31 starting...
+[bramble:31] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:31] QUALITY_GATE_FAIL — dist=-1.0 len_diff=376
+[bramble:31] OK — chosen=142c rej=518c dist=-1.0 diff=376
+[run-gen] bramble idx=31 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=32 starting...
+[bramble:32] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:32] QUALITY_GATE_FAIL — dist=-1.0 len_diff=472
+[bramble:32] OK — chosen=138c rej=610c dist=-1.0 diff=472
+[run-gen] bramble idx=32 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=33 starting...
+[bramble:33] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:33] QUALITY_GATE_FAIL — dist=-1.0 len_diff=559
+[bramble:33] OK — chosen=113c rej=672c dist=-1.0 diff=559
+[run-gen] bramble idx=33 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=34 starting...
+[bramble:34] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:34] QUALITY_GATE_FAIL — dist=-1.0 len_diff=487
+[bramble:34] OK — chosen=59c rej=546c dist=-1.0 diff=487
+[run-gen] bramble idx=34 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=35 starting...
+[bramble:35] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:35] QUALITY_GATE_FAIL — dist=-1.0 len_diff=429
+[bramble:35] OK — chosen=166c rej=595c dist=-1.0 diff=429
+[run-gen] bramble idx=35 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=36 starting...
+[bramble:36] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:36] QUALITY_GATE_FAIL — dist=-1.0 len_diff=420
+[bramble:36] OK — chosen=70c rej=490c dist=-1.0 diff=420
+[run-gen] bramble idx=36 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=37 starting...
+[bramble:37] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:37] QUALITY_GATE_FAIL — dist=-1.0 len_diff=703
+[bramble:37] OK — chosen=130c rej=833c dist=-1.0 diff=703
+[run-gen] bramble idx=37 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=38 starting...
+[bramble:38] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:38] QUALITY_GATE_FAIL — dist=-1.0 len_diff=422
+[bramble:38] OK — chosen=78c rej=500c dist=-1.0 diff=422
+[run-gen] bramble idx=38 ✓ appended to pairs.jsonl
+[run-gen] bramble idx=39 starting...
+[bramble:39] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[bramble:39] QUALITY_GATE_FAIL — dist=-1.0 len_diff=508
+[bramble:39] OK — chosen=82c rej=590c dist=-1.0 diff=508
+[run-gen] bramble idx=39 ✓ appended to pairs.jsonl
+[run-gen] === bramble complete: 0 valid pairs ===
+[run-gen] === Generating vex pairs (40 scenarios) ===
+[run-gen] vex idx=0 starting...
+[vex:0] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:0] QUALITY_GATE_FAIL — dist=-1.0 len_diff=363
+[vex:0] OK — chosen=522c rej=885c dist=-1.0 diff=363
+[run-gen] vex idx=0 ✓ appended to pairs.jsonl
+[run-gen] vex idx=1 starting...
+[vex:1] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:1] QUALITY_GATE_FAIL — dist=-1.0 len_diff=294
+[vex:1] OK — chosen=358c rej=652c dist=-1.0 diff=294
+[run-gen] vex idx=1 ✓ appended to pairs.jsonl
+[run-gen] vex idx=2 starting...
+[vex:2] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:2] QUALITY_GATE_FAIL — dist=-1.0 len_diff=278
+[vex:2] OK — chosen=640c rej=918c dist=-1.0 diff=278
+[run-gen] vex idx=2 ✓ appended to pairs.jsonl
+[run-gen] vex idx=3 starting...
+[vex:3] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:3] QUALITY_GATE_FAIL — dist=-1.0 len_diff=364
+[vex:3] OK — chosen=591c rej=955c dist=-1.0 diff=364
+[run-gen] vex idx=3 ✓ appended to pairs.jsonl
+[run-gen] vex idx=4 starting...
+[vex:4] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:4] QUALITY_GATE_FAIL — dist=-1.0 len_diff=285
+[vex:4] OK — chosen=431c rej=716c dist=-1.0 diff=285
+[run-gen] vex idx=4 ✓ appended to pairs.jsonl
+[run-gen] vex idx=5 starting...
+[vex:5] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:5] QUALITY_GATE_FAIL — dist=-1.0 len_diff=244
+[vex:5] OK — chosen=425c rej=669c dist=-1.0 diff=244
+[run-gen] vex idx=5 ✓ appended to pairs.jsonl
+[run-gen] vex idx=6 starting...
+[vex:6] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:6] QUALITY_GATE_FAIL — dist=-1.0 len_diff=250
+[vex:6] OK — chosen=332c rej=582c dist=-1.0 diff=250
+[run-gen] vex idx=6 ✓ appended to pairs.jsonl
+[run-gen] vex idx=7 starting...
+[vex:7] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:7] QUALITY_GATE_FAIL — dist=-1.0 len_diff=211
+[vex:7] OK — chosen=403c rej=614c dist=-1.0 diff=211
+[run-gen] vex idx=7 ✓ appended to pairs.jsonl
+[run-gen] vex idx=8 starting...
+[vex:8] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:8] QUALITY_GATE_FAIL — dist=-1.0 len_diff=384
+[vex:8] OK — chosen=327c rej=711c dist=-1.0 diff=384
+[run-gen] vex idx=8 ✓ appended to pairs.jsonl
+[run-gen] vex idx=9 starting...
+[vex:9] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:9] QUALITY_GATE_FAIL — dist=-1.0 len_diff=306
+[vex:9] OK — chosen=398c rej=704c dist=-1.0 diff=306
+[run-gen] vex idx=9 ✓ appended to pairs.jsonl
+[run-gen] vex idx=10 starting...
+[vex:10] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:10] QUALITY_GATE_FAIL — dist=-1.0 len_diff=228
+[vex:10] OK — chosen=519c rej=747c dist=-1.0 diff=228
+[run-gen] vex idx=10 ✓ appended to pairs.jsonl
+[run-gen] vex idx=11 starting...
+[vex:11] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:11] QUALITY_GATE_FAIL — dist=-1.0 len_diff=348
+[vex:11] OK — chosen=519c rej=867c dist=-1.0 diff=348
+[run-gen] vex idx=11 ✓ appended to pairs.jsonl
+[run-gen] vex idx=12 starting...
+[vex:12] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:12] QUALITY_GATE_FAIL — dist=-1.0 len_diff=191
+[vex:12] OK — chosen=573c rej=764c dist=-1.0 diff=191
+[run-gen] vex idx=12 ✓ appended to pairs.jsonl
+[run-gen] vex idx=13 starting...
+[vex:13] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:13] QUALITY_GATE_FAIL — dist=-1.0 len_diff=177
+[vex:13] OK — chosen=482c rej=659c dist=-1.0 diff=177
+[run-gen] vex idx=13 ✓ appended to pairs.jsonl
+[run-gen] vex idx=14 starting...
+[vex:14] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:14] QUALITY_GATE_FAIL — dist=-1.0 len_diff=336
+[vex:14] OK — chosen=484c rej=820c dist=-1.0 diff=336
+[run-gen] vex idx=14 ✓ appended to pairs.jsonl
+[run-gen] vex idx=15 starting...
+[vex:15] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:15] QUALITY_GATE_FAIL — dist=-1.0 len_diff=215
+[vex:15] OK — chosen=472c rej=687c dist=-1.0 diff=215
+[run-gen] vex idx=15 ✓ appended to pairs.jsonl
+[run-gen] vex idx=16 starting...
+[vex:16] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:16] QUALITY_GATE_FAIL — dist=-1.0 len_diff=195
+[vex:16] OK — chosen=213c rej=408c dist=-1.0 diff=195
+[run-gen] vex idx=16 ✓ appended to pairs.jsonl
+[run-gen] vex idx=17 starting...
+[vex:17] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:17] QUALITY_GATE_FAIL — dist=-1.0 len_diff=154
+[vex:17] OK — chosen=233c rej=387c dist=-1.0 diff=154
+[run-gen] vex idx=17 ✓ appended to pairs.jsonl
+[run-gen] vex idx=18 starting...
+[vex:18] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:18] QUALITY_GATE_FAIL — dist=-1.0 len_diff=361
+[vex:18] OK — chosen=355c rej=716c dist=-1.0 diff=361
+[run-gen] vex idx=18 ✓ appended to pairs.jsonl
+[run-gen] vex idx=19 starting...
+[vex:19] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:19] QUALITY_GATE_FAIL — dist=-1.0 len_diff=415
+[vex:19] OK — chosen=396c rej=811c dist=-1.0 diff=415
+[run-gen] vex idx=19 ✓ appended to pairs.jsonl
+[run-gen] vex idx=20 starting...
+[vex:20] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:20] QUALITY_GATE_FAIL — dist=-1.0 len_diff=275
+[vex:20] OK — chosen=408c rej=683c dist=-1.0 diff=275
+[run-gen] vex idx=20 ✓ appended to pairs.jsonl
+[run-gen] vex idx=21 starting...
+[vex:21] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:21] QUALITY_GATE_FAIL — dist=-1.0 len_diff=292
+[vex:21] OK — chosen=564c rej=856c dist=-1.0 diff=292
+[run-gen] vex idx=21 ✓ appended to pairs.jsonl
+[run-gen] vex idx=22 starting...
+[vex:22] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:22] QUALITY_GATE_FAIL — dist=-1.0 len_diff=311
+[vex:22] OK — chosen=225c rej=536c dist=-1.0 diff=311
+[run-gen] vex idx=22 ✓ appended to pairs.jsonl
+[run-gen] vex idx=23 starting...
+[vex:23] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:23] QUALITY_GATE_FAIL — dist=-1.0 len_diff=298
+[vex:23] OK — chosen=523c rej=821c dist=-1.0 diff=298
+[run-gen] vex idx=23 ✓ appended to pairs.jsonl
+[run-gen] vex idx=24 starting...
+[vex:24] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:24] QUALITY_GATE_FAIL — dist=-1.0 len_diff=268
+[vex:24] OK — chosen=437c rej=705c dist=-1.0 diff=268
+[run-gen] vex idx=24 ✓ appended to pairs.jsonl
+[run-gen] vex idx=25 starting...
+[vex:25] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:25] QUALITY_GATE_FAIL — dist=-1.0 len_diff=394
+[vex:25] OK — chosen=497c rej=891c dist=-1.0 diff=394
+[run-gen] vex idx=25 ✓ appended to pairs.jsonl
+[run-gen] vex idx=26 starting...
+[vex:26] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:26] QUALITY_GATE_FAIL — dist=-1.0 len_diff=211
+[vex:26] OK — chosen=463c rej=674c dist=-1.0 diff=211
+[run-gen] vex idx=26 ✓ appended to pairs.jsonl
+[run-gen] vex idx=27 starting...
+[vex:27] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:27] QUALITY_GATE_FAIL — dist=-1.0 len_diff=181
+[vex:27] OK — chosen=417c rej=598c dist=-1.0 diff=181
+[run-gen] vex idx=27 ✓ appended to pairs.jsonl
+[run-gen] vex idx=28 starting...
+[vex:28] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[vex:28] QUALITY_GATE_FAIL — dist=-1.0 len_diff=377
+[vex:28] OK — chosen=512c rej=889c dist=-1.0 diff=377
+[run-gen] vex idx=28 ✓ appended to pairs.jsonl
+[run-gen] vex idx=29 starting...
+[vex:29] OK — chosen=489c rej=772c dist=0.8545 diff=283
+[run-gen] vex idx=29 ✓ appended to pairs.jsonl
+[run-gen] vex idx=30 starting...
+[vex:30] OK — chosen=345c rej=596c dist=0.8819 diff=251
+[run-gen] vex idx=30 ✓ appended to pairs.jsonl
+[run-gen] vex idx=31 starting...
+[vex:31] OK — chosen=504c rej=979c dist=0.9049 diff=475
+[run-gen] vex idx=31 ✓ appended to pairs.jsonl
+[run-gen] vex idx=32 starting...
+[vex:32] OK — chosen=440c rej=760c dist=0.823 diff=320
+[run-gen] vex idx=32 ✓ appended to pairs.jsonl
+[run-gen] vex idx=33 starting...
+[vex:33] OK — chosen=426c rej=836c dist=0.7571 diff=410
+[run-gen] vex idx=33 ✓ appended to pairs.jsonl
+[run-gen] vex idx=34 starting...
+[vex:34] OK — chosen=406c rej=662c dist=0.8475 diff=256
+[run-gen] vex idx=34 ✓ appended to pairs.jsonl
+[run-gen] vex idx=35 starting...
+[vex:35] OK — chosen=463c rej=632c dist=0.8261 diff=169
+[run-gen] vex idx=35 ✓ appended to pairs.jsonl
+[run-gen] vex idx=36 starting...
+[vex:36] OK — chosen=471c rej=766c dist=0.7408 diff=295
+[run-gen] vex idx=36 ✓ appended to pairs.jsonl
+[run-gen] vex idx=37 starting...
+[vex:37] OK — chosen=408c rej=729c dist=0.8125 diff=321
+[run-gen] vex idx=37 ✓ appended to pairs.jsonl
+[run-gen] vex idx=38 starting...
+[vex:38] OK — chosen=411c rej=619c dist=0.7669 diff=208
+[run-gen] vex idx=38 ✓ appended to pairs.jsonl
+[run-gen] vex idx=39 starting...
+[vex:39] OK — chosen=459c rej=719c dist=0.8271 diff=260
+[run-gen] vex idx=39 ✓ appended to pairs.jsonl
+[run-gen] === vex complete: 0 valid pairs ===
+[run-gen] === Generating marigold pairs (40 scenarios) ===
+[run-gen] marigold idx=0 starting...
+[marigold:0] OK — chosen=1051c rej=1248c dist=0.8651 diff=197
+[run-gen] marigold idx=0 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=1 starting...
+[marigold:1] OK — chosen=951c rej=1172c dist=0.926 diff=221
+[run-gen] marigold idx=1 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=2 starting...
+[marigold:2] OK — chosen=1031c rej=1139c dist=0.8832 diff=108
+[run-gen] marigold idx=2 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=3 starting...
+[marigold:3] OK — chosen=1111c rej=1409c dist=0.9251 diff=298
+[run-gen] marigold idx=3 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=4 starting...
+[marigold:4] PARSE_ERROR — No JSON object found in response:
+
+[run-gen] marigold idx=4 ✗ process failed
+[run-gen] marigold idx=5 starting...
+[marigold:5] PARSE_ERROR — No JSON object found in response:
+
+[run-gen] marigold idx=5 ✗ process failed
+[run-gen] marigold idx=6 starting...
+[marigold:6] OK — chosen=1092c rej=1298c dist=0.9276 diff=206
+[run-gen] marigold idx=6 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=7 starting...
+[marigold:7] OK — chosen=949c rej=1120c dist=0.9037 diff=171
+[run-gen] marigold idx=7 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=8 starting...
+[marigold:8] PARSE_ERROR — No JSON object found in response:
+
+[run-gen] marigold idx=8 ✗ process failed
+[run-gen] marigold idx=9 starting...
+[marigold:9] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:9] QUALITY_GATE_FAIL — dist=-1.0 len_diff=113
+[marigold:9] OK — chosen=891c rej=1004c dist=-1.0 diff=113
+[run-gen] marigold idx=9 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=10 starting...
+[marigold:10] PARSE_ERROR — No JSON object found in response:
+
+[run-gen] marigold idx=10 ✗ process failed
+[run-gen] marigold idx=11 starting...
+[marigold:11] PARSE_ERROR — No JSON object found in response:
+
+[run-gen] marigold idx=11 ✗ process failed
+[run-gen] marigold idx=12 starting...
+[marigold:12] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:12] QUALITY_GATE_FAIL — dist=-1.0 len_diff=209
+[marigold:12] OK — chosen=1047c rej=1256c dist=-1.0 diff=209
+[run-gen] marigold idx=12 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=13 starting...
+[marigold:13] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:13] QUALITY_GATE_FAIL — dist=-1.0 len_diff=210
+[marigold:13] OK — chosen=975c rej=1185c dist=-1.0 diff=210
+[run-gen] marigold idx=13 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=14 starting...
+[marigold:14] PARSE_ERROR — No JSON object found in response:
+
+[run-gen] marigold idx=14 ✗ process failed
+[run-gen] marigold idx=15 starting...
+[marigold:15] PARSE_ERROR — No JSON object found in response:
+
+[run-gen] marigold idx=15 ✗ process failed
+[run-gen] marigold idx=16 starting...
+[marigold:16] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:16] QUALITY_GATE_FAIL — dist=-1.0 len_diff=304
+[marigold:16] OK — chosen=564c rej=868c dist=-1.0 diff=304
+[run-gen] marigold idx=16 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=17 starting...
+[marigold:17] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:17] QUALITY_GATE_FAIL — dist=-1.0 len_diff=345
+[marigold:17] OK — chosen=367c rej=712c dist=-1.0 diff=345
+[run-gen] marigold idx=17 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=18 starting...
+[marigold:18] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:18] QUALITY_GATE_FAIL — dist=-1.0 len_diff=314
+[marigold:18] OK — chosen=975c rej=1289c dist=-1.0 diff=314
+[run-gen] marigold idx=18 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=19 starting...
+[marigold:19] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:19] QUALITY_GATE_FAIL — dist=-1.0 len_diff=116
+[marigold:19] OK — chosen=898c rej=1014c dist=-1.0 diff=116
+[run-gen] marigold idx=19 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=20 starting...
+[marigold:20] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:20] QUALITY_GATE_FAIL — dist=-1.0 len_diff=124
+[marigold:20] OK — chosen=1042c rej=1166c dist=-1.0 diff=124
+[run-gen] marigold idx=20 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=21 starting...
+[marigold:21] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:21] QUALITY_GATE_FAIL — dist=-1.0 len_diff=412
+[marigold:21] OK — chosen=930c rej=1342c dist=-1.0 diff=412
+[run-gen] marigold idx=21 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=22 starting...
+[marigold:22] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:22] QUALITY_GATE_FAIL — dist=-1.0 len_diff=203
+[marigold:22] OK — chosen=907c rej=1110c dist=-1.0 diff=203
+[run-gen] marigold idx=22 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=23 starting...
+[marigold:23] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:23] QUALITY_GATE_FAIL — dist=-1.0 len_diff=197
+[marigold:23] OK — chosen=924c rej=1121c dist=-1.0 diff=197
+[run-gen] marigold idx=23 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=24 starting...
+[marigold:24] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:24] QUALITY_GATE_FAIL — dist=-1.0 len_diff=274
+[marigold:24] OK — chosen=942c rej=1216c dist=-1.0 diff=274
+[run-gen] marigold idx=24 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=25 starting...
+[marigold:25] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:25] QUALITY_GATE_FAIL — dist=-1.0 len_diff=281
+[marigold:25] OK — chosen=973c rej=1254c dist=-1.0 diff=281
+[run-gen] marigold idx=25 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=26 starting...
+[marigold:26] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:26] QUALITY_GATE_FAIL — dist=-1.0 len_diff=262
+[marigold:26] OK — chosen=875c rej=1137c dist=-1.0 diff=262
+[run-gen] marigold idx=26 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=27 starting...
+[marigold:27] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:27] QUALITY_GATE_FAIL — dist=-1.0 len_diff=310
+[marigold:27] OK — chosen=1027c rej=1337c dist=-1.0 diff=310
+[run-gen] marigold idx=27 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=28 starting...
+[marigold:28] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:28] QUALITY_GATE_FAIL — dist=-1.0 len_diff=72
+[marigold:28] OK — chosen=881c rej=953c dist=-1.0 diff=72
+[run-gen] marigold idx=28 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=29 starting...
+[marigold:29] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:29] QUALITY_GATE_FAIL — dist=-1.0 len_diff=132
+[marigold:29] OK — chosen=962c rej=1094c dist=-1.0 diff=132
+[run-gen] marigold idx=29 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=30 starting...
+[marigold:30] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:30] QUALITY_GATE_FAIL — dist=-1.0 len_diff=263
+[marigold:30] OK — chosen=980c rej=1243c dist=-1.0 diff=263
+[run-gen] marigold idx=30 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=31 starting...
+[marigold:31] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:31] QUALITY_GATE_FAIL — dist=-1.0 len_diff=89
+[marigold:31] OK — chosen=1000c rej=1089c dist=-1.0 diff=89
+[run-gen] marigold idx=31 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=32 starting...
+[marigold:32] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:32] QUALITY_GATE_FAIL — dist=-1.0 len_diff=331
+[marigold:32] OK — chosen=848c rej=1179c dist=-1.0 diff=331
+[run-gen] marigold idx=32 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=33 starting...
+[marigold:33] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:33] QUALITY_GATE_FAIL — dist=-1.0 len_diff=140
+[marigold:33] OK — chosen=899c rej=1039c dist=-1.0 diff=140
+[run-gen] marigold idx=33 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=34 starting...
+[marigold:34] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:34] QUALITY_GATE_FAIL — dist=-1.0 len_diff=13
+[marigold:34] OK — chosen=1070c rej=1057c dist=-1.0 diff=13
+[run-gen] marigold idx=34 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=35 starting...
+[marigold:35] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:35] QUALITY_GATE_FAIL — dist=-1.0 len_diff=292
+[marigold:35] OK — chosen=1066c rej=1358c dist=-1.0 diff=292
+[run-gen] marigold idx=35 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=36 starting...
+[marigold:36] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:36] QUALITY_GATE_FAIL — dist=-1.0 len_diff=239
+[marigold:36] OK — chosen=948c rej=1187c dist=-1.0 diff=239
+[run-gen] marigold idx=36 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=37 starting...
+[marigold:37] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:37] QUALITY_GATE_FAIL — dist=-1.0 len_diff=145
+[marigold:37] OK — chosen=1050c rej=1195c dist=-1.0 diff=145
+[run-gen] marigold idx=37 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=38 starting...
+[marigold:38] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:38] QUALITY_GATE_FAIL — dist=-1.0 len_diff=168
+[marigold:38] OK — chosen=991c rej=1159c dist=-1.0 diff=168
+[run-gen] marigold idx=38 ✓ appended to pairs.jsonl
+[run-gen] marigold idx=39 starting...
+[marigold:39] EMBED_ERROR — <urlopen error [Errno 111] Connection refused>
+[marigold:39] QUALITY_GATE_FAIL — dist=-1.0 len_diff=284
+[marigold:39] OK — chosen=866c rej=1150c dist=-1.0 diff=284
+[run-gen] marigold idx=39 ✓ appended to pairs.jsonl
+[run-gen] === marigold complete: 0 valid pairs ===
+=== generation finished 2026-08-27T21:33:48Z ===
