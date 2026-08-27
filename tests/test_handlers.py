@@ -12,6 +12,7 @@ from semantic_forge.data_models import (
     ContrastivePair,
     BuildDatasetResult,
 )
+from semantic_forge.integrations import SemanticKinematicsClient
 from semantic_forge.mcp import (
     PermutatePhrasingParams,
     GenerateScenarioParams,
@@ -57,6 +58,100 @@ class TestHandlers:
             assert isinstance(result.rephrasings[0], Rephrasing)
             assert result.rephrasings[0].mood == "imperative"
             assert result.rephrasings[0].text == "Do this thing."
+
+    @pytest.mark.asyncio
+    async def test_handle_permutate_phrasing_validates_diversity_via_public_embedding_path(
+        self, handlers
+    ):
+        """permutate_phrasing's diversity leg must call the real public embedding
+        method (embed_text) and the real drift-from-embeddings method, not a
+        dead/private method name (regression for issue #6, handlers.py:139)."""
+        params = PermutatePhrasingParams(
+            concept="Test concept",
+            moods=["imperative", "declarative"],
+            validate_diversity=True,
+        )
+
+        with patch("semantic_forge.handlers.create_client") as mock_create:
+            mock_client = AsyncMock()
+            mock_client.generate = AsyncMock(side_effect=[
+                "Do this thing.",
+                "This is the way.",
+            ])
+            mock_create.return_value = mock_client
+
+            with patch("semantic_forge.handlers.get_semantic_kinematics_endpoint") as mock_sk:
+                mock_sk.return_value = "semantic-kinematics-mcp"
+
+                # spec=SemanticKinematicsClient: calling any method that isn't on the
+                # real client's public interface raises AttributeError, exactly as it
+                # would against the real client if the code called a dead/renamed method.
+                sk_client_patch = "semantic_forge.handlers.SemanticKinematicsClient"
+                with patch(sk_client_patch) as mock_sk_client_class:
+                    mock_sk_client = AsyncMock(spec=SemanticKinematicsClient)
+                    mock_sk_client.initialize = AsyncMock(return_value=True)
+                    mock_sk_client.embed_text = AsyncMock(side_effect=[
+                        {"embedding": [1.0, 0.0, 0.0]},
+                        {"embedding": [0.0, 1.0, 0.0]},
+                    ])
+                    mock_sk_client.calculate_drift_from_embeddings = AsyncMock(
+                        return_value={
+                            "mean_pairwise_drift": 0.3,
+                            "min_drift": 0.3,
+                            "max_drift": 0.3,
+                            "drift_matrix": [[0.0, 0.3], [0.3, 0.0]],
+                        }
+                    )
+                    mock_sk_client_class.return_value = mock_sk_client
+
+                    result = await handlers.handle_permutate_phrasing(params)
+
+                    assert isinstance(result, PermutatePhrasingResult)
+                    # embed_text (the real public method) must have been used.
+                    assert mock_sk_client.embed_text.call_count == 2
+                    mock_sk_client.embed_text.assert_any_call("Do this thing.", full_vector=True)
+                    # The real pairwise-drift-from-embeddings method must have been used.
+                    mock_sk_client.calculate_drift_from_embeddings.assert_awaited_once_with(
+                        [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
+                    )
+                    assert result.spread_score == 0.3
+                    assert result.diversity_warning is None
+
+    @pytest.mark.asyncio
+    async def test_handle_permutate_phrasing_fails_loudly_when_embedding_method_missing(
+        self, handlers
+    ):
+        """Regression for issue #6: SK live + validate_diversity=true against a client
+        whose embedding method is missing/renamed must raise SemanticKinematicsRequiredError,
+        not silently swallow the AttributeError and report success with no diversity result."""
+        params = PermutatePhrasingParams(
+            concept="Test concept",
+            moods=["imperative"],
+            validate_diversity=True,
+        )
+
+        with patch("semantic_forge.handlers.create_client") as mock_create:
+            mock_client = AsyncMock()
+            mock_client.generate = AsyncMock(return_value="Do this thing.")
+            mock_create.return_value = mock_client
+
+            with patch("semantic_forge.handlers.get_semantic_kinematics_endpoint") as mock_sk:
+                mock_sk.return_value = "semantic-kinematics-mcp"
+
+                sk_client_patch = "semantic_forge.handlers.SemanticKinematicsClient"
+                with patch(sk_client_patch) as mock_sk_client_class:
+                    # spec=SemanticKinematicsClient with embed_text deleted simulates a
+                    # dead/renamed method: any call to it raises AttributeError, just as
+                    # calling a nonexistent method on the real client would.
+                    mock_sk_client = AsyncMock(spec=SemanticKinematicsClient)
+                    mock_sk_client.initialize = AsyncMock(return_value=True)
+                    del mock_sk_client.embed_text
+                    mock_sk_client_class.return_value = mock_sk_client
+
+                    with pytest.raises(SemanticKinematicsRequiredError) as exc_info:
+                        await handlers.handle_permutate_phrasing(params)
+
+                    assert "unavailable" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_handle_generate_scenario_returns_pydantic_models(self, handlers):
