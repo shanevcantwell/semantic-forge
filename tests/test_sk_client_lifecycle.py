@@ -155,6 +155,12 @@ class TestOtherSkClientCallSitesCloseSession:
         mock_sk_client = AsyncMock()
         mock_sk_client.initialize = AsyncMock(return_value=None)
         mock_sk_client._get_embedding = AsyncMock(return_value=[0.1, 0.2, 0.3])
+        # permutate_phrasing's diversity leg now routes through the public
+        # embedding path (issue #6): embed_text -> calculate_drift_from_embeddings.
+        mock_sk_client.embed_text = AsyncMock(return_value={"embedding": [0.1, 0.2, 0.3]})
+        mock_sk_client.calculate_drift_from_embeddings = AsyncMock(return_value={
+            "mean_pairwise_drift": 0.3,
+        })
         mock_sk_client.calculate_drift = AsyncMock(return_value={
             "mean_pairwise_drift": 0.3,
             "drift": 0.3,
