@@ -124,6 +124,7 @@ class SemanticForgeHandlers:
             sk_endpoint = get_semantic_kinematics_endpoint()
             sk_config = get_semantic_kinematics_config()
             if sk_endpoint:
+                sk_client = None
                 try:
                     sk_client = SemanticKinematicsClient(
                         endpoint=sk_endpoint,
@@ -152,6 +153,9 @@ class SemanticForgeHandlers:
                         spread_score = mean_drift
                 except Exception:
                     pass  # Silent fallback if SK unavailable
+                finally:
+                    if sk_client is not None:
+                        await sk_client.close()
 
         return PermutatePhrasingResult(
             concept=concept,
@@ -241,6 +245,7 @@ Scenario description:"""
             )
 
         # Try to initialize SK client and verify it's responsive
+        sk_client = None
         try:
             sk_client = SemanticKinematicsClient(
                 endpoint=sk_endpoint,
@@ -252,15 +257,18 @@ Scenario description:"""
             # Verify the client can actually respond
             await sk_client.model_status()
         except Exception as e:
+            if sk_client is not None:
+                await sk_client.close()
             raise SemanticKinematicsRequiredError(
                 f"semantic-kinematics-mcp is required but unavailable: {e}. "
                 "Ensure the MCP server is running and accessible."
             )
 
-        target_config = get_target_config()
-        client = create_client(target_config)
+        try:
+            target_config = get_target_config()
+            client = create_client(target_config)
 
-        prompt = f"""Generate a contrastive training pair for the concept of "{context}".
+            prompt = f"""Generate a contrastive training pair for the concept of "{context}".
 
 Scenario: {scenario}
 
@@ -277,56 +285,58 @@ Output as JSON:
 
 JSON output:"""
 
-        try:
-            result = await client.generate_structured(prompt, dict, temperature=0.8, max_tokens=1000)
-            prompt_text = result.get("prompt", scenario)
-            chosen = result.get("chosen", "")
-            rejected = result.get("rejected", "")
+            try:
+                result = await client.generate_structured(prompt, dict, temperature=0.8, max_tokens=1000)
+                prompt_text = result.get("prompt", scenario)
+                chosen = result.get("chosen", "")
+                rejected = result.get("rejected", "")
 
-            # Score both completions with CogSec (returns CogSecScore model)
-            chosen_score = cogsec_score(chosen, context)
-            rejected_score = cogsec_score(rejected, context)
+                # Score both completions with CogSec (returns CogSecScore model)
+                chosen_score = cogsec_score(chosen, context)
+                rejected_score = cogsec_score(rejected, context)
 
-            # Get trajectory analysis from SK-MCP (required fields)
-            chosen_trajectory_data = await sk_client.analyze_trajectory(chosen)
-            rejected_trajectory_data = await sk_client.analyze_trajectory(rejected)
+                # Get trajectory analysis from SK-MCP (required fields)
+                chosen_trajectory_data = await sk_client.analyze_trajectory(chosen)
+                rejected_trajectory_data = await sk_client.analyze_trajectory(rejected)
 
-            # Get embedding distance between chosen and rejected
-            drift_result = await sk_client.calculate_drift(chosen, rejected)
-            embedding_distance = drift_result.get("drift", 0.0)
+                # Get embedding distance between chosen and rejected
+                drift_result = await sk_client.calculate_drift(chosen, rejected)
+                embedding_distance = drift_result.get("drift", 0.0)
 
-            # Build TrajectoryProfile Pydantic models
-            chosen_trajectory = TrajectoryProfile(
-                mean_velocity=chosen_trajectory_data.get("mean_velocity", 0.0),
-                deadpan_score=chosen_trajectory_data.get("deadpan_score", 0.5),
-                acceleration_spikes=chosen_trajectory_data.get("acceleration_spikes", []),
-                torsion=chosen_trajectory_data.get("torsion"),
-                curvature=chosen_trajectory_data.get("curvature"),
-            )
-            rejected_trajectory = TrajectoryProfile(
-                mean_velocity=rejected_trajectory_data.get("mean_velocity", 0.0),
-                deadpan_score=rejected_trajectory_data.get("deadpan_score", 0.5),
-                acceleration_spikes=rejected_trajectory_data.get("acceleration_spikes", []),
-                torsion=rejected_trajectory_data.get("torsion"),
-                curvature=rejected_trajectory_data.get("curvature"),
-            )
+                # Build TrajectoryProfile Pydantic models
+                chosen_trajectory = TrajectoryProfile(
+                    mean_velocity=chosen_trajectory_data.get("mean_velocity", 0.0),
+                    deadpan_score=chosen_trajectory_data.get("deadpan_score", 0.5),
+                    acceleration_spikes=chosen_trajectory_data.get("acceleration_spikes", []),
+                    torsion=chosen_trajectory_data.get("torsion"),
+                    curvature=chosen_trajectory_data.get("curvature"),
+                )
+                rejected_trajectory = TrajectoryProfile(
+                    mean_velocity=rejected_trajectory_data.get("mean_velocity", 0.0),
+                    deadpan_score=rejected_trajectory_data.get("deadpan_score", 0.5),
+                    acceleration_spikes=rejected_trajectory_data.get("acceleration_spikes", []),
+                    torsion=rejected_trajectory_data.get("torsion"),
+                    curvature=rejected_trajectory_data.get("curvature"),
+                )
 
-            # Return ContrastivePair Pydantic model
-            return ContrastivePair(
-                prompt=prompt_text,
-                chosen=chosen,
-                rejected=rejected,
-                chosen_cogsec_score=chosen_score,
-                rejected_cogsec_score=rejected_score,
-                chosen_trajectory=chosen_trajectory,
-                rejected_trajectory=rejected_trajectory,
-                embedding_distance_chosen_rejected=embedding_distance,
-            )
-        except SemanticKinematicsRequiredError:
-            # Re-raise SK errors without catching
-            raise
-        except Exception as e:
-            raise RuntimeError(f"Failed to generate contrastive pair: {e}")
+                # Return ContrastivePair Pydantic model
+                return ContrastivePair(
+                    prompt=prompt_text,
+                    chosen=chosen,
+                    rejected=rejected,
+                    chosen_cogsec_score=chosen_score,
+                    rejected_cogsec_score=rejected_score,
+                    chosen_trajectory=chosen_trajectory,
+                    rejected_trajectory=rejected_trajectory,
+                    embedding_distance_chosen_rejected=embedding_distance,
+                )
+            except SemanticKinematicsRequiredError:
+                # Re-raise SK errors without catching
+                raise
+            except Exception as e:
+                raise RuntimeError(f"Failed to generate contrastive pair: {e}")
+        finally:
+            await sk_client.close()
 
     async def handle_score_completion(
         self, params: ScoreCompletionParams
@@ -367,6 +377,7 @@ JSON output:"""
                 "diversity_warning": "semantic-kinematics-mcp not configured",
             })
 
+        sk_client = None
         try:
             sk_client = SemanticKinematicsClient(
                 endpoint=sk_endpoint,
@@ -424,6 +435,9 @@ JSON output:"""
                 "drift_matrix": [],
                 "diversity_warning": f"Error: {str(e)}",
             })
+        finally:
+            if sk_client is not None:
+                await sk_client.close()
 
     async def handle_validate_trajectory(
         self, params: ValidateTrajectoryParams
@@ -442,6 +456,7 @@ JSON output:"""
                 "warning": "semantic-kinematics-mcp not configured",
             })
 
+        sk_client = None
         try:
             sk_client = SemanticKinematicsClient(
                 endpoint=sk_endpoint,
@@ -483,6 +498,9 @@ JSON output:"""
                 "trajectory_analysis": [],
                 "warning": f"Error: {str(e)}",
             })
+        finally:
+            if sk_client is not None:
+                await sk_client.close()
 
     async def handle_build_dataset(
         self, params: BuildDatasetParams
