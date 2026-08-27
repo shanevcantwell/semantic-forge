@@ -124,24 +124,35 @@ class SemanticForgeHandlers:
             sk_endpoint = get_semantic_kinematics_endpoint()
             sk_config = get_semantic_kinematics_config()
             if sk_endpoint:
+                sk_client = SemanticKinematicsClient(
+                    endpoint=sk_endpoint,
+                    backend=sk_config.backend,
+                    base_url=sk_config.base_url,
+                    model_name=sk_config.model_name,
+                )
                 try:
-                    sk_client = SemanticKinematicsClient(
-                        endpoint=sk_endpoint,
-                        backend=sk_config.backend,
-                        base_url=sk_config.base_url,
-                        model_name=sk_config.model_name,
-                    )
                     await sk_client.initialize()
 
-                    # Get embeddings for rephrasings
+                    # Get embeddings for rephrasings via the public embedding path.
+                    # full_vector=True is required: without it embed_text returns only
+                    # a 10-dim embedding_preview, which is useless for drift calculation.
                     embeddings = []
                     for r in rephrasings:
-                        embedding = await sk_client._get_embedding(r.text)
-                        if embedding:
-                            embeddings.append(embedding)
+                        embed_result = await sk_client.embed_text(r.text, full_vector=True)
+                        if "error" in embed_result:
+                            raise SemanticKinematicsRequiredError(
+                                f"semantic-kinematics-mcp embed_text failed: {embed_result['error']}"
+                            )
+                        embedding = embed_result.get("embedding")
+                        if not embedding:
+                            raise SemanticKinematicsRequiredError(
+                                "semantic-kinematics-mcp embed_text returned no embedding vector "
+                                f"(response keys: {list(embed_result.keys())})"
+                            )
+                        embeddings.append(embedding)
 
                     if embeddings:
-                        drift_result = await sk_client.calculate_drift(embeddings)
+                        drift_result = await sk_client.calculate_drift_from_embeddings(embeddings)
                         mean_drift = drift_result.get("mean_pairwise_drift", 0)
 
                         if mean_drift < 0.2:
@@ -150,8 +161,15 @@ class SemanticForgeHandlers:
                             diversity_warning = "Rephrasings may have drifted from original concept"
 
                         spread_score = mean_drift
-                except Exception:
-                    pass  # Silent fallback if SK unavailable
+                except SemanticKinematicsRequiredError:
+                    # Re-raise: a configured SK endpoint that fails to embed must
+                    # surface as a tool error, not silently omit the diversity result.
+                    raise
+                except Exception as e:
+                    raise SemanticKinematicsRequiredError(
+                        f"semantic-kinematics-mcp is required but unavailable: {e}. "
+                        "Ensure the MCP server is running and accessible."
+                    )
 
         return PermutatePhrasingResult(
             concept=concept,
