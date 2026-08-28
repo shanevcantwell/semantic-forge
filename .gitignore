@@ -45,6 +45,9 @@ htmlcov/
 # Logs
 *.log
 
+# Build artifacts from Unsloth/PoC runs
+unsloth_compiled_cache/
+
 semantic-forge-starter-pack.md
 
 # Project documentation
