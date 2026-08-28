@@ -37,3 +37,19 @@ Repo-local:
 - **No local feature branches.** Only `main` is local; remote-tracking refs for `docs/adr-namespace-migration`, `docs/adr-valid-friction-sk-mcp2`, `qwen3-coder-next`, `qwen35-27b` exist but local branches do not.
 - **Single experiment line active.** persona-dpo P5-machinery PoC (commit 64ffe71 banks env deltas from HF egress recipe + `:8081` identity event). Prior P1–P4 are closed or superseded; see the roadmap for closure records.
 - **Two open issues** that aren't on the experiment line: #6 (permutate\_phrasing dead sk\_client call) and #7 (SK stdio client lifecycle CancelledError) — both are framework bugs, not experiment work.
+
+## Inference topology (host x runtime matrix)
+
+| | i9 (`inference-host`) | pc (`192.168.137.1` / shane-pc) |
+|---|---|---|
+| **lmstudio** | *(unused)* | `shane-pc-lmstudio/lmstudio-pc` — model served via LM Studio UI; worker contracts pin here |
+| **llauncher** | `:8081` chat + `:8082` embeddings (identity per live `/v1/models`) | gemma-3-12b-it-IQ4_NL on llauncher-pc at `shane-pc:8081` |
+
+- **Unsloth training lane** runs in Docker on Windows at `shane-pc:8000` — reachable over the network, not local to this container.
+- **GPU precision matters:** shane-pc RTX 3090 (Ampere) has native BF16; inference-host RTX 8000 (Turing) is FP16-only. QLoRA/DPO training runs on shane-pc for proper mixed-precision paths — do not route training workloads to inference-host.
+- **Serialize heavy consumers of :8081** — llama-server uses `--unified-kv`, finite pool; two concurrent agent sessions can kill both lanes ("Context size has been exceeded"). One background agent at a time.
+
+## Session state continuity
+
+- `docs/experiments/persona-dpo-handoff.md` is the primary cold-resume record for the active experiment line — read it before acting on persona-dpo work.
+- Local feature branches are not used; all work happens on `main`. Remote-tracking refs exist but should not be checked out without operator direction.
